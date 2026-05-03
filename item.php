@@ -6,7 +6,7 @@ $id = (int)($_GET['id'] ?? 0);
 if (!$id) { setFlash('error','Item not found.'); redirect(BASE_URL); }
 
 $stmt = $conn->prepare("
-    SELECT p.*, u.name AS poster_name
+    SELECT p.*, u.name AS poster_name, u.phone AS poster_phone
     FROM   posts p
     JOIN   users u ON u.id = p.user_id
     WHERE  p.id = ?
@@ -32,7 +32,7 @@ $claimsStmt->bind_param('i', $id);
 $claimsStmt->execute();
 $claims = $claimsStmt->get_result()->fetch_all(MYSQLI_ASSOC);
 
-// Has current user already claimed?
+// NAKIT AN / NAULI NABA SA USER?
 $userClaim = null;
 if ($loggedIn && !$isOwner) {
     foreach ($claims as $c) {
@@ -53,7 +53,6 @@ $similar = $simStmt->get_result()->fetch_all(MYSQLI_ASSOC);
 ?>
 
 <div class="container-xl py-4">
-    <!-- Back -->
     <a href="<?= BASE_URL ?>" class="d-inline-flex align-items-center gap-2 text-muted mb-3 small fw-semibold"
        style="text-decoration:none">
         <i class="bi bi-arrow-left"></i> Back to Feed
@@ -110,6 +109,17 @@ $similar = $simStmt->get_result()->fetch_all(MYSQLI_ASSOC);
                     <i class="bi bi-person-fill icon"></i>
                     <span>Posted by <strong><?= e($post['poster_name']) ?></strong></span>
                 </div>
+                <?php if (!empty($post['poster_phone'])): ?>
+                <div class="detail-meta-item">
+                    <i class="bi bi-telephone-fill icon"></i>
+                    <span>Contact: <a href="tel:<?= e($post['poster_phone']) ?>"><strong><?= e($post['poster_phone']) ?></strong></a></span>
+                </div>
+                <?php else: ?>
+                <div class="detail-meta-item">
+                    <i class="bi bi-telephone-fill icon"></i>
+                    <span class="text-muted">No contact number provided</span>
+                </div>
+                <?php endif; ?>
 
                 <hr>
                 <p class="text-muted" style="font-size:.9rem;line-height:1.7"><?= nl2br(e($post['description'])) ?></p>

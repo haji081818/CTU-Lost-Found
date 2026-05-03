@@ -10,13 +10,6 @@ $flash = getFlash();
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <?php if (in_array($currentPage, ['login', 'register'])): ?>
-<style>
-    body { display: block; }
-    .site-footer { display: none; }
-    .main-content { padding-bottom: 0; margin-bottom: 0; }
-</style>
-<?php endif; ?>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= $pageTitle ?? 'CTU Danao Lost & Found' ?></title>
@@ -28,10 +21,9 @@ $flash = getFlash();
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-
-    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Nunito:wght@400;500;600&display=swap" rel="stylesheet">
+    <!-- Custom CSS -->
     <link href="<?= BASE_URL ?>assets/css/style.css" rel="stylesheet">
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><rect width='16' height='16' rx='3' fill='%23FFAB00'/><path fill='%230F2D5C' d='M6.5 2a4.5 4.5 0 1 0 2.672 8.086l2.622 2.621a.75.75 0 1 0 1.06-1.06L10.233 9.026A4.5 4.5 0 0 0 6.5 2m0 1a3.5 3.5 0 1 1 0 7 3.5 3.5 0 0 1 0-7M5.5 5a.5.5 0 0 0 0 1h.585l-.431.588a.5.5 0 0 0 .346.846V8.5a.5.5 0 0 0 1 0V7.434a.5.5 0 0 0 .346-.846L6.915 6H7.5a.5.5 0 0 0 0-1z'/></svg>">
 </head>
 <body>
 
@@ -99,6 +91,7 @@ $flash = getFlash();
                         <ul class="dropdown-menu dropdown-menu-end">
                             <li><span class="dropdown-item-text fw-semibold text-primary"><?= e($userName) ?></span></li>
                             <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="<?= BASE_URL ?>profile.php"><i class="bi bi-person-fill me-2"></i>My Profile</a></li>
                             <li><a class="dropdown-item" href="<?= BASE_URL ?>my-posts.php"><i class="bi bi-collection me-2"></i>My Posts</a></li>
                             <li><a class="dropdown-item" href="<?= BASE_URL ?>claims.php"><i class="bi bi-bell me-2"></i>Claims</a></li>
                             <li><hr class="dropdown-divider"></li>

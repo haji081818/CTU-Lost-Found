@@ -16,7 +16,7 @@ if (!$type || !$title || !$description || !$category || !$location) {
     redirect(BASE_URL);
 }
 
-// upload image
+// Image upload
 $imageName = null;
 if (!empty($_FILES['image']['name'])) {
     $file = $_FILES['image'];

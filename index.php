@@ -362,12 +362,7 @@ $catIcons = [
 
                 <!-- Quick Post -->
                 <?php if ($loggedIn): ?>
-                <div class="sidebar-card sidebar-post-prompt">
-                    <div class="spp-avatar"><?= strtoupper(substr($userName,0,1)) ?></div>
-                    <button class="spp-btn" data-bs-toggle="modal" data-bs-target="#postModal">
-                        Report a lost or found item…
-                    </button>
-                </div>
+                
                 <?php else: ?>
                 <div class="sidebar-card text-center py-3">
                     <div class="sb-auth-icon"><i class="bi bi-search-heart"></i></div>

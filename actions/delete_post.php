@@ -1,4 +1,5 @@
 <?php
+/* actions/delete_post.php */
 if (session_status() === PHP_SESSION_NONE) session_start();
 require_once __DIR__ . '/../config/db.php';
 requireLogin();
@@ -6,6 +7,7 @@ requireLogin();
 $postId = (int)($_GET['id'] ?? 0);
 if (!$postId) redirect(BASE_URL);
 
+// Fetch image before e delete ang post para ma delete ang file sa server
 $row = $conn->prepare("SELECT image FROM posts WHERE id=? AND user_id=?");
 $row->bind_param('ii', $postId, $_SESSION['user_id']);
 $row->execute();

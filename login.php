@@ -7,15 +7,16 @@ if (isLoggedIn()) redirect(BASE_URL);
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email    = trim($_POST['email']    ?? '');
     $password =      $_POST['password'] ?? '';
-    $stmt = $conn->prepare("SELECT id, name, password FROM users WHERE email = ?");
+    $stmt = $conn->prepare("SELECT id, name, password, is_admin FROM users WHERE email = ?");
     $stmt->bind_param('s', $email);
     $stmt->execute();
     $user = $stmt->get_result()->fetch_assoc();
     if ($user && password_verify($password, $user['password'])) {
         $_SESSION['user_id']   = $user['id'];
         $_SESSION['user_name'] = $user['name'];
+        $_SESSION['is_admin']  = $user['is_admin'];
         setFlash('success', 'Welcome back, ' . $user['name'] . '!');
-        redirect(BASE_URL);
+        redirect($user['is_admin'] ? BASE_URL . 'admin/dashboard.php' : BASE_URL);
     } else {
         setFlash('error', 'Invalid email or password.');
         redirect(BASE_URL . 'login.php');
@@ -34,14 +35,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <input type="email" name="email" class="form-control" placeholder="you@ctu.edu.ph" required autofocus>
             </div>
             <div class="mb-4">
-                 <label class="form-label">Password</label>
+                <label class="form-label">Password</label>
                 <div class="input-group">
-                 <input type="password" name="password" id="passwordField" class="form-control" placeholder="••••••••" required>
-                <button class="btn btn-outline-secondary" type="button" id="togglePassword" tabindex="-1">
-            <i class="bi bi-eye" id="toggleIcon"></i>
-        </button>
-    </div>
-</div>
+                    <input type="password" name="password" id="passwordField" class="form-control" placeholder="••••••••" required>
+                    <button class="btn btn-outline-secondary" type="button" id="togglePassword" tabindex="-1">
+                        <i class="bi bi-eye" id="toggleIcon"></i>
+                    </button>
+                </div>
+            </div>
             <button type="submit" class="btn btn-primary w-100 py-2">
                 <i class="bi bi-box-arrow-in-right me-2"></i>Log In
             </button>
@@ -51,19 +52,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             Don't have an account?
             <a href="<?= BASE_URL ?>register.php" class="fw-semibold">Register here</a>
         </p>
+        <p class="text-center small text-muted">
+            <a href="<?= BASE_URL ?>admin/login.php" class="text-muted">Admin? Log in here</a>
+        </p>
     </div>
 </div>
-<?php require_once __DIR__ . '/includes/footer.php'; ?>
 <script>
-    document.getElementById('togglePassword').addEventListener('click', function () {
-        const field = document.getElementById('passwordField');
-        const icon  = document.getElementById('toggleIcon');
-        if (field.type === 'password') {
-            field.type = 'text';
-            icon.classList.replace('bi-eye', 'bi-eye-slash');
-        } else {
-            field.type = 'password';
-            icon.classList.replace('bi-eye-slash', 'bi-eye');
-        }
-    });
+document.getElementById('togglePassword').addEventListener('click', function () {
+    const field = document.getElementById('passwordField');
+    const icon  = document.getElementById('toggleIcon');
+    if (field.type === 'password') {
+        field.type = 'text';
+        icon.classList.replace('bi-eye', 'bi-eye-slash');
+    } else {
+        field.type = 'password';
+        icon.classList.replace('bi-eye-slash', 'bi-eye');
+    }
+});
 </script>
+<?php require_once __DIR__ . '/includes/footer.php'; ?>

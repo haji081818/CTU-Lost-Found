@@ -58,18 +58,6 @@ a:hover { color: var(--primary-mid); }
     box-shadow: 0 2px 12px rgba(15,45,92,.25);
 }
 
-.ctu-navbar {
-    z-index: 1030;
-}
-
-.filter-strip {
-    z-index: 50;
-}
-
-.dropdown-menu {
-    z-index: 1031 !important;
-}
-
 .brand-icon {
     width: 40px; height: 40px;
     background: var(--accent);
@@ -169,7 +157,7 @@ a:hover { color: var(--primary-mid); }
 }
 
 /* ── Main ───────────────────────────────────── */
-.main-content { flex: 1; padding-bottom: 0; }
+.main-content { flex: 1; padding-bottom: 2rem; }
 
 /* ── Page Hero / Header ─────────────────────── */
 .page-hero {
@@ -579,16 +567,11 @@ a:hover { color: var(--primary-mid); }
 
 /* ── Auth Pages ─────────────────────────────── */
 .auth-wrap {
-    min-height: calc(100vh - 62px);
+    min-height: calc(100vh - 120px);
     display: flex;
     align-items: center;
     justify-content: center;
     padding: 2rem 1rem;
-    background:
-        linear-gradient(140deg, rgba(10,31,68,.92) 0%, rgba(15,45,92,.88) 45%, rgba(26,74,138,.85) 100%),
-        url('../../uploads/ctudanao.jpg') center center / cover no-repeat;
-    background-attachment: scroll;
-    margin-bottom: 0;
 }
 
 .auth-card {
@@ -711,15 +694,6 @@ a:hover { color: var(--primary-mid); }
 .site-footer {
     background: var(--primary);
     color: rgba(255,255,255,.7);
-}
-
-.site-footer .footer-brand {
-    color: #fff !important;
-}
-
-.site-footer span,
-.site-footer small {
-    color: rgba(255,255,255,.7) !important;
 }
 
 .footer-brand {
@@ -910,7 +884,7 @@ a:hover { color: var(--primary-mid); }
     padding: .8rem 0;
     position: sticky;
     top: 62px;
-    z-index: 50;
+    z-index: 99;
     box-shadow: 0 1px 12px rgba(0,0,0,.06);
 }
 
@@ -1384,13 +1358,7 @@ a:hover { color: var(--primary-mid); }
 }
 
 /* ── Animations ─────────────────────────────── */
-@keyframes pageFadeIn {
-    from { opacity: 0; }
-    to   { opacity: 1; }
-}
-body {
-    animation: pageFadeIn 0.15s ease both;
-}
+
 /* No items found (live search) */
 #noResults {
     display: none;
@@ -1398,4 +1366,10 @@ body {
     padding: 3rem 1rem;
     color: var(--text-light);
     width: 100%;
+}
+
+/* ── Profile Page ───────────────────────────── */
+.profile-wrap .detail-card {
+    background: rgba(255,255,255,.97);
+    box-shadow: 0 8px 32px rgba(0,0,0,.18);
 }

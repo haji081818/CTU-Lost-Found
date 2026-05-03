@@ -3,7 +3,7 @@ $pageTitle = 'Claims — CTU Lost & Found';
 require_once __DIR__ . '/includes/header.php';
 requireLogin();
 
-// Claims on MY posts (I need to approve/reject)
+// claims (I need to approve/reject)
 $mine = $conn->prepare("
     SELECT c.*, p.title AS post_title, p.id AS post_id, u.name AS claimant_name
     FROM   claims c

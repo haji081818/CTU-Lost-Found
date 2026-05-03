@@ -10,6 +10,7 @@ if (!$claimId || !in_array($action, ['approve','reject'])) {
     redirect(BASE_URL);
 }
 
+// Get claim + verify ownership
 $stmt = $conn->prepare("
     SELECT c.*, p.user_id AS post_owner, p.id AS post_id
     FROM   claims c JOIN posts p ON p.id = c.post_id

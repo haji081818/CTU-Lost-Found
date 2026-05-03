@@ -1,11 +1,15 @@
 <?php
+// ============================================
+// Database Configuration
+// Change these values to match your server
+// ============================================
 
 define('DB_HOST', 'localhost');
-define('DB_USER', 'root');    
-define('DB_PASS', '');           
+define('DB_USER', 'root');       // your MySQL username
+define('DB_PASS', '');           // your MySQL password
 define('DB_NAME', 'ctu_lost_found');
 
-define('BASE_URL', 'http://localhost/ctu-lost-found/'); 
+define('BASE_URL', 'http://localhost/ctu-lost-found/'); // adjust as needed
 define('UPLOAD_DIR', __DIR__ . '/../uploads/');
 define('UPLOAD_URL', BASE_URL . 'uploads/');
 define('MAX_FILE_SIZE', 5 * 1024 * 1024); // 5MB
@@ -23,6 +27,7 @@ if ($conn->connect_error) {
 
 $conn->set_charset('utf8mb4');
 
+// Helper: flash messages via session
 function setFlash(string $type, string $msg): void {
     $_SESSION['flash'] = ['type' => $type, 'msg' => $msg];
 }
@@ -36,15 +41,18 @@ function getFlash(): ?array {
     return null;
 }
 
+// Helper: redirect
 function redirect(string $url): void {
     header('Location: ' . $url);
     exit;
 }
 
+// Helper: is logged in
 function isLoggedIn(): bool {
     return isset($_SESSION['user_id']);
 }
 
+// Helper: require login
 function requireLogin(): void {
     if (!isLoggedIn()) {
         setFlash('warning', 'Please log in to continue.');
@@ -52,10 +60,12 @@ function requireLogin(): void {
     }
 }
 
+// Helper: sanitize output
 function e(string $str): string {
     return htmlspecialchars($str, ENT_QUOTES, 'UTF-8');
 }
 
+// Helper: time ago
 function timeAgo(string $datetime): string {
     $time = strtotime($datetime);
     $diff = time() - $time;
