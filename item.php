@@ -6,7 +6,7 @@ $id = (int)($_GET['id'] ?? 0);
 if (!$id) { setFlash('error','Item not found.'); redirect(BASE_URL); }
 
 $stmt = $conn->prepare("
-    SELECT p.*, u.name AS poster_name, u.phone AS poster_phone
+    SELECT p.*, u.name AS poster_name
     FROM   posts p
     JOIN   users u ON u.id = p.user_id
     WHERE  p.id = ?
@@ -109,10 +109,10 @@ $similar = $simStmt->get_result()->fetch_all(MYSQLI_ASSOC);
                     <i class="bi bi-person-fill icon"></i>
                     <span>Posted by <strong><?= e($post['poster_name']) ?></strong></span>
                 </div>
-                <?php if (!empty($post['poster_phone'])): ?>
+                <?php if (!empty($post['contact_number'])): ?>
                 <div class="detail-meta-item">
                     <i class="bi bi-telephone-fill icon"></i>
-                    <span>Contact: <a href="tel:<?= e($post['poster_phone']) ?>"><strong><?= e($post['poster_phone']) ?></strong></a></span>
+                    <span>Contact: <a href="tel:<?= e($post['contact_number']) ?>"><strong><?= e($post['contact_number']) ?></strong></a></span>
                 </div>
                 <?php else: ?>
                 <div class="detail-meta-item">
