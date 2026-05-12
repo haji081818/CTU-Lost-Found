@@ -1,14 +1,13 @@
-/* CTU Danao Lost & Found — main.js */
 
-// ── Flash Alert Box ───────────────────────────
+// ── Flash Alert Box ───────────────────────────────
 const toast = document.getElementById('flashToast');
 if (toast) {
     // Auto-dismiss toast after 4 seconds instead of blocking with alert()
     setTimeout(() => {
         toast.style.transition = 'opacity 0.3s ease-out';
         toast.style.opacity = '0';
-        setTimeout(() => toast.remove(), 300);
-    }, 4000);
+        setTimeout(() => toast.remove(), 300);-
+    }, 4000);  
 }
 
 // ── Live Search ───────────────────────────────

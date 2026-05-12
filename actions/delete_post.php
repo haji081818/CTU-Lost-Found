@@ -28,4 +28,4 @@ if ($del->affected_rows > 0) {
     setFlash('error', 'Could not delete post.');
 }
 
-redirect(BASE_URL . 'my-posts.php');
+redirect(BASE_URL . 'index.php');

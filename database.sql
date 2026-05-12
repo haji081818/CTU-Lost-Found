@@ -33,8 +33,8 @@ CREATE TABLE posts (
     INDEX idx_created (created_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-ALTER TABLE posts
-ADD contact_number VARCHAR(20);
+ALTER TABLE posts 
+ADD contact_number VARCHAR(11) NULL;
 
 CREATE TABLE claims (
     id          INT AUTO_INCREMENT PRIMARY KEY,
@@ -55,3 +55,6 @@ VALUES (
     '$2y$10$4dt55TE5lYoQ3THzJpwBYOE0H8Gdv3J89HdqnaNPeGKKLetDqRh76',
     1
 );
+
+
+

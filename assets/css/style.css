@@ -891,11 +891,13 @@ a:hover { color: var(--primary-mid); }
     background: #fff;
     border-bottom: 1px solid var(--border);
     padding: .8rem 0;
-    position: sticky;
-    top: 62px;
-    z-index: 99;
-    box-shadow: 0 1px 12px rgba(0,0,0,.06);
+    /* Not sticky so it won't "follow" while scrolling */
+    position: relative;
+    top: auto;
+    z-index: auto;
+    box-shadow: none;
 }
+
 
 .fpill {
     display: inline-flex;
