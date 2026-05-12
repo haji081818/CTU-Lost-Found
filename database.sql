@@ -48,6 +48,7 @@ CREATE TABLE claims (
     UNIQUE KEY unique_claim (post_id, claimant_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+-- Email: admin@ctu.edu.ph | Password: ctulostfound1
 INSERT INTO users (name, email, password, is_admin)
 VALUES (
     'Administrator',
