@@ -8,7 +8,7 @@ require_once __DIR__ . '/includes/header.php';
 $stats = $conn->query("
     SELECT
         (SELECT COUNT(*) FROM users WHERE is_admin = 0)          AS total_users,
-        (SELECT COUNT(*) FROM posts)                             AS total_posts,
+        (SELECT COUNT(*) FROM posts)                             AS total_posts,   
         (SELECT COUNT(*) FROM posts WHERE type='lost' AND status='active')  AS lost_active,
         (SELECT COUNT(*) FROM posts WHERE type='found' AND status='active') AS found_active,
         (SELECT COUNT(*) FROM posts WHERE status='returned')     AS returned,

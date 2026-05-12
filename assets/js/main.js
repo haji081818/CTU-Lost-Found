@@ -1,5 +1,16 @@
 /* CTU Danao Lost & Found — main.js */
 
+// ── Flash Alert Box ───────────────────────────
+const toast = document.getElementById('flashToast');
+if (toast) {
+    // Auto-dismiss toast after 4 seconds instead of blocking with alert()
+    setTimeout(() => {
+        toast.style.transition = 'opacity 0.3s ease-out';
+        toast.style.opacity = '0';
+        setTimeout(() => toast.remove(), 300);
+    }, 4000);
+}
+
 // ── Live Search ───────────────────────────────
 const searchInput = document.getElementById('liveSearch');
 const cardGrid    = document.getElementById('cardGrid');
@@ -53,13 +64,6 @@ if (imageInput) {
         }
     });
 }
-
-// ── Auto-dismiss flash alerts ─────────────────
-setTimeout(() => {
-    document.querySelectorAll('.alert.alert-success, .alert.alert-info').forEach(el => {
-        el.classList.remove('show');
-    });
-}, 4500);
 
 // ── Smooth scroll for hero CTA ────────────────
 document.querySelectorAll('a[href="#feed"]').forEach(anchor => {

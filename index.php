@@ -1,5 +1,5 @@
 <?php
-$pageTitle = 'CTU Danao Lost & Found — Campus Item Recovery';
+$pageTitle = 'CTU Danao Lost & Found';
 require_once __DIR__ . '/includes/header.php';
 
 // ── Query Parameters ──────────────────────────────────────────

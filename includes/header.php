@@ -10,19 +10,23 @@ $flash = getFlash();
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><rect width='16' height='16' rx='3' fill='%23FFAB00'/><path fill='%230F2D5C' d='M6.5 2a4.5 4.5 0 1 0 2.672 8.086l2.622 2.621a.75.75 0 1 0 1.06-1.06L10.233 9.026A4.5 4.5 0 0 0 6.5 2m0 1a3.5 3.5 0 1 1 0 7 3.5 3.5 0 0 1 0-7M5.5 5a.5.5 0 0 0 0 1h.585l-.431.588a.5.5 0 0 0 .346.846V8.5a.5.5 0 0 0 1 0V7.434a.5.5 0 0 0 .346-.846L6.915 6H7.5a.5.5 0 0 0 0-1z'/></svg>">
+   <?php if (in_array($currentPage, ['login', 'register'])): ?>
+<style>
+    body { display: block; }
+    .site-footer { display: none; }
+    .main-content { padding-bottom: 0; margin-bottom: 0; }
+</style>
+<?php endif; ?>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= $pageTitle ?? 'CTU Danao Lost & Found' ?></title>
 
-    <!-- Bootstrap 5 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Bootstrap Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
-    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Nunito:wght@400;500;600&display=swap" rel="stylesheet">
-    <!-- Custom CSS -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Nunito:wght@400;500;600&display=swap" rel="stylesheet"> 
     <link href="<?= BASE_URL ?>assets/css/style.css" rel="stylesheet">
 </head>
 <body>
@@ -85,7 +89,22 @@ $flash = getFlash();
                     </li>
                     <li class="nav-item ms-lg-1 dropdown">
                         <a class="nav-link dropdown-toggle user-avatar-btn" href="#" data-bs-toggle="dropdown">
-                            <div class="user-avatar"><?= strtoupper(substr($userName, 0, 1)) ?></div>
+                            <?php
+$currentUser = null;
+if ($loggedIn) {
+    $avatarStmt = $conn->prepare("SELECT avatar FROM users WHERE id = ?");
+    $avatarStmt->bind_param('i', $_SESSION['user_id']);
+    $avatarStmt->execute();
+    $currentUser = $avatarStmt->get_result()->fetch_assoc();
+}
+?>
+<?php if (!empty($currentUser['avatar'])): ?>
+    <img src="<?= UPLOAD_URL . e($currentUser['avatar']) ?>"
+         alt="Avatar"
+         style="width:34px;height:34px;border-radius:50%;object-fit:cover;border:2px;">
+<?php else: ?>
+    <div class="user-avatar"><?= strtoupper(substr($userName, 0, 1)) ?></div>
+<?php endif; ?>
                             <span class="d-lg-none ms-2"><?= e($userName) ?></span>
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end">
@@ -107,13 +126,22 @@ $flash = getFlash();
     </div>
 </nav>
 
-<!-- Flash Messages -->
+<!-- Flash Toast Notification -->
 <?php if ($flash): ?>
-<div class="container-xl mt-3">
-    <div class="alert alert-<?= $flash['type'] === 'error' ? 'danger' : e($flash['type']) ?> alert-dismissible fade show" role="alert">
-        <?= e($flash['msg']) ?>
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+<div id="flashToast" class="flash-toast flash-toast-<?= $flash['type'] === 'error' ? 'danger' : e($flash['type']) ?>">
+    <div class="flash-toast-icon">
+        <?php if ($flash['type'] === 'success'): ?>
+            <i class="bi bi-check-circle-fill"></i>
+        <?php elseif ($flash['type'] === 'error'): ?>
+            <i class="bi bi-x-circle-fill"></i>
+        <?php elseif ($flash['type'] === 'warning'): ?>
+            <i class="bi bi-exclamation-triangle-fill"></i>
+        <?php else: ?>
+            <i class="bi bi-info-circle-fill"></i>
+        <?php endif; ?>
     </div>
+    <span class="flash-toast-msg"><?= e($flash['msg']) ?></span>
+    <button class="flash-toast-close" onclick="document.getElementById('flashToast').remove()">&times;</button>
 </div>
 <?php endif; ?>
 

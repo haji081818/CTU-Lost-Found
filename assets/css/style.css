@@ -157,7 +157,7 @@ a:hover { color: var(--primary-mid); }
 }
 
 /* ── Main ───────────────────────────────────── */
-.main-content { flex: 1; padding-bottom: 2rem; }
+.main-content { flex: 1; padding-bottom: 0; }
 
 /* ── Page Hero / Header ─────────────────────── */
 .page-hero {
@@ -572,6 +572,11 @@ a:hover { color: var(--primary-mid); }
     align-items: center;
     justify-content: center;
     padding: 2rem 1rem;
+    background:
+        linear-gradient(140deg, rgba(10,31,68,.92) 0%, rgba(15,45,92,.88) 45%, rgba(26,74,138,.85) 100%),
+        url('../../uploads/ctudanao.jpg') center center / cover no-repeat;
+    background-attachment: fixed;
+    margin-bottom: 0;
 }
 
 .auth-card {
@@ -700,6 +705,10 @@ a:hover { color: var(--primary-mid); }
     font-family: 'Outfit', sans-serif;
     font-weight: 700;
     color: #fff;
+}
+
+.site-footer .text-muted {
+    color: #fff !important;
 }
 
 /* ── Utilities ──────────────────────────────── */
@@ -1358,6 +1367,13 @@ a:hover { color: var(--primary-mid); }
 }
 
 /* ── Animations ─────────────────────────────── */
+@keyframes pageFadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+body {
+    animation: pageFadeIn 0.15s ease both;
+}
 
 /* No items found (live search) */
 #noResults {
@@ -1373,3 +1389,84 @@ a:hover { color: var(--primary-mid); }
     background: rgba(255,255,255,.97);
     box-shadow: 0 8px 32px rgba(0,0,0,.18);
 }
+
+/* ── Flash Toast ────────────────────────────── */
+.flash-toast {
+    position: fixed;
+    top: 80px;
+    right: 24px;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    padding: .85rem 1.1rem;
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0,0,0,.18);
+    font-family: 'Nunito', sans-serif;
+    font-size: .9rem;
+    font-weight: 600;
+    min-width: 280px;
+    max-width: 380px;
+    animation: toastSlideIn .35s cubic-bezier(.22,1,.36,1) both;
+    transition: opacity 0.3s ease-out;
+}
+
+@keyframes toastSlideIn {
+    from { opacity: 0; transform: translateX(60px); }
+    to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes toastSlideOut {
+    from { opacity: 1; transform: translateX(0); }
+    to   { opacity: 0; transform: translateX(60px); }
+}
+
+.flash-toast-success {
+    background: #fff;
+    border-left: 4px solid #276749;
+    color: #1A202C;
+}
+.flash-toast-success .flash-toast-icon { color: #276749; }
+
+.flash-toast-danger {
+    background: #fff;
+    border-left: 4px solid #E53E3E;
+    color: #1A202C;
+}
+.flash-toast-danger .flash-toast-icon { color: #E53E3E; }
+
+.flash-toast-warning {
+    background: #fff;
+    border-left: 4px solid #D97706;
+    color: #1A202C;
+}
+.flash-toast-warning .flash-toast-icon { color: #D97706; }
+
+.flash-toast-info {
+    background: #fff;
+    border-left: 4px solid #2356B0;
+    color: #1A202C;
+}
+.flash-toast-info .flash-toast-icon { color: #2356B0; }
+
+.flash-toast-icon {
+    font-size: 1.2rem;
+    flex-shrink: 0;
+}
+
+.flash-toast-msg {
+    flex: 1;
+    line-height: 1.4;
+}
+
+.flash-toast-close {
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    color: #718096;
+    cursor: pointer;
+    padding: 0;
+    line-height: 1;
+    flex-shrink: 0;
+}
+.flash-toast-close:hover { color: #1A202C; }
