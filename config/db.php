@@ -1,8 +1,4 @@
 <?php
-// ============================================
-// Database Configuration
-// Change these values to match your server
-// ============================================
 
 define('DB_HOST', 'localhost');
 define('DB_USER', 'root');       // your MySQL username
