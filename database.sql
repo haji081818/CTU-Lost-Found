@@ -1,13 +1,7 @@
--- ============================================
--- CTU Danao Lost and Found System
--- Database Schema
--- ============================================
-
 CREATE DATABASE IF NOT EXISTS ctu_lost_found;
 USE ctu_lost_found;
 
--- Users table
-CREATE TABLE IF NOT EXISTS users (
+CREATE TABLE users (
     id          INT AUTO_INCREMENT PRIMARY KEY,
     name        VARCHAR(100) NOT NULL,
     email       VARCHAR(150) NOT NULL UNIQUE,
@@ -19,10 +13,9 @@ CREATE TABLE IF NOT EXISTS users (
     avatar      VARCHAR(255) DEFAULT NULL,
     is_admin    TINYINT(1)   DEFAULT 0,
     created_at  TIMESTAMP    DEFAULT CURRENT_TIMESTAMP
-);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- Posts table
-CREATE TABLE IF NOT EXISTS posts (
+CREATE TABLE posts (
     id          INT AUTO_INCREMENT PRIMARY KEY,
     user_id     INT NOT NULL,
     type        ENUM('lost','found') NOT NULL,
@@ -38,10 +31,9 @@ CREATE TABLE IF NOT EXISTS posts (
     INDEX idx_type    (type),
     INDEX idx_status  (status),
     INDEX idx_created (created_at)
-);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- Claims table
-CREATE TABLE IF NOT EXISTS claims (
+CREATE TABLE claims (
     id          INT AUTO_INCREMENT PRIMARY KEY,
     post_id     INT NOT NULL,
     claimant_id INT NOT NULL,
@@ -51,17 +43,9 @@ CREATE TABLE IF NOT EXISTS claims (
     FOREIGN KEY (post_id)     REFERENCES posts(id) ON DELETE CASCADE,
     FOREIGN KEY (claimant_id) REFERENCES users(id) ON DELETE CASCADE,
     UNIQUE KEY unique_claim (post_id, claimant_id)
-);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-ALTER TABLE users
-  ADD COLUMN course VARCHAR(100) DEFAULT NULL,
-  ADD COLUMN year_level VARCHAR(20) DEFAULT NULL,
-  ADD COLUMN phone VARCHAR(20) DEFAULT NULL,
-  ADD COLUMN avatar VARCHAR(255) DEFAULT NULL,
-  ADD COLUMN is_admin TINYINT(1) DEFAULT 0;
-
--- Email: admin@ctu.edu.ph | Password: ctulostfound1
-INSERT IGNORE INTO users (name, email, password, is_admin)
+INSERT INTO users (name, email, password, is_admin)
 VALUES (
     'Administrator',
     'admin@ctu.edu.ph',
