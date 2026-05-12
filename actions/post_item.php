@@ -5,11 +5,12 @@ requireLogin();
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') redirect(BASE_URL);
 
-$type        = in_array($_POST['type'] ?? '', ['lost','found']) ? $_POST['type'] : null;
-$title       = trim($_POST['title']       ?? '');
-$description = trim($_POST['description'] ?? '');
-$category    = trim($_POST['category']    ?? '');
-$location    = trim($_POST['location']    ?? '');
+$type          = in_array($_POST['type'] ?? '', ['lost','found']) ? $_POST['type'] : null;
+$title         = trim($_POST['title']          ?? '');
+$description   = trim($_POST['description']    ?? '');
+$category      = trim($_POST['category']       ?? '');
+$location      = trim($_POST['location']       ?? '');
+$contactNumber = trim($_POST['contact_number'] ?? '');
 
 if (!$type || !$title || !$description || !$category || !$location) {
     setFlash('error', 'Please fill in all required fields.');
@@ -37,10 +38,10 @@ if (!empty($_FILES['image']['name'])) {
 }
 
 $stmt = $conn->prepare("
-    INSERT INTO posts (user_id, type, title, description, category, location, image)
-    VALUES (?, ?, ?, ?, ?, ?, ?)
+    INSERT INTO posts (user_id, type, title, description, category, location, image, contact_number)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
 ");
-$stmt->bind_param('issssss', $_SESSION['user_id'], $type, $title, $description, $category, $location, $imageName);
+$stmt->bind_param('isssssss', $_SESSION['user_id'], $type, $title, $description, $category, $location, $imageName, $contactNumber);
 
 if ($stmt->execute()) {
     setFlash('success', 'Your item has been posted successfully!');

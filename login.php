@@ -34,15 +34,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <label class="form-label">Email Address</label>
                 <input type="email" name="email" class="form-control" placeholder="you@ctu.edu.ph" required autofocus>
             </div>
-            <div class="mb-4">
-                <label class="form-label">Password</label>
-                <div class="input-group">
+            <div class="mb-2">
+                <div class="d-flex justify-content-between align-items-center">
+                    <label class="form-label mb-0">Password</label>
+                    <a href="<?= BASE_URL ?>forgot_password.php" class="small text-muted">Forgot password?</a>
+                </div>
+                <div class="input-group mt-1">
                     <input type="password" name="password" id="passwordField" class="form-control" placeholder="••••••••" required>
                     <button class="btn btn-outline-secondary" type="button" id="togglePassword" tabindex="-1">
                         <i class="bi bi-eye" id="toggleIcon"></i>
                     </button>
                 </div>
             </div>
+            <div class="mb-4"></div>
             <button type="submit" class="btn btn-primary w-100 py-2">
                 <i class="bi bi-box-arrow-in-right me-2"></i>Log In
             </button>

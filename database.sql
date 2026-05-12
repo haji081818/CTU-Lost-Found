@@ -33,6 +33,9 @@ CREATE TABLE posts (
     INDEX idx_created (created_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+ALTER TABLE posts
+ADD contact_number VARCHAR(20);
+
 CREATE TABLE claims (
     id          INT AUTO_INCREMENT PRIMARY KEY,
     post_id     INT NOT NULL,

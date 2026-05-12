@@ -201,6 +201,10 @@ if ($loggedIn) {
                             <input type="text" name="location" class="form-control" placeholder="e.g. Library, Canteen, Room 302" required maxlength="150">
                         </div>
                         <div class="col-md-4">
+                            <label class="form-label fw-semibold">Contact Number</label>
+                            <input type="text" name="contact_number" class="form-control" placeholder="09XXXXXXXXX" maxlength="20">
+                        </div>
+                        <div class="col-md-8">
                             <label class="form-label fw-semibold">Item Photo</label>
                             <input type="file" name="image" class="form-control" accept="image/*" id="imageInput">
                         </div>
