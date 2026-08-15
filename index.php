@@ -43,7 +43,7 @@ if ($search !== '') {
 }
 
 $sql = "
-    SELECT p.*, u.name AS poster_name
+    SELECT p.*, u.name AS poster_name, u.avatar AS poster_avatar
     FROM   posts p
     JOIN   users u ON u.id = p.user_id
     WHERE  " . implode(' AND ', $where) . "
@@ -332,9 +332,21 @@ $catIcons = [
                                     <?= e($post['location']) ?>
                                 </div>
                                 <div class="icm-poster">
-                                    <div class="icm-avatar"><?= strtoupper(substr($post['poster_name'],0,1)) ?></div>
-                                    <span><?= e(explode(' ',$post['poster_name'])[0]) ?></span>
+                                    <div class="icm-avatar" style="overflow: hidden;">
+                                    <?php if (!empty($post['poster_avatar'])): ?>
+                                     <!-- Actual User Profile Picture -->
+                                    <img src="<?= UPLOAD_URL . e($post['poster_avatar']) ?>"
+                                    alt="<?= e($post['poster_name']) ?>"
+                                    style="width: 100%; height: 100%; object-fit: cover;"
+                                    onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';">
+                                    <span style="display: none;"><?= strtoupper(substr($post['poster_name'], 0, 1)) ?></span>
+                                        <?php else: ?>
+                                        <!-- Fallback Letter Initial if user has no picture -->
+                                    <span><?= strtoupper(substr($post['poster_name'], 0, 1)) ?></span>
+                                        <?php endif; ?>
                                 </div>
+                        <span><?= e(explode(' ', $post['poster_name'])[0]) ?></span>
+                        </div>
                             </div>
                         </div>
 
