@@ -64,15 +64,41 @@ if (imageInput) {
     });
 }
 
-// ── Smooth scroll for hero CTA ────────────────
+// ── Universal Feed Auto-Scroll ─────────────────
+// Smooth scroll to feed when filters change or when browsing items
+function scrollToFeed() {
+    const feedElement = document.getElementById('feed');
+    if (feedElement) {
+        feedElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+}
+
+// Hero CTA button - smooth scroll to feed
 const browseItemsBtn = document.getElementById('browseItemsBtn');
 if (browseItemsBtn) {
     browseItemsBtn.addEventListener('click', function (e) {
         e.preventDefault();
-        const target = document.getElementById('feed');
-        if (target) {
-            // Use smooth scroll for better UX
-            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
+        scrollToFeed();
     });
 }
+
+// Filter pills and category items - mark for scroll on page load
+const feedControls = document.querySelectorAll(
+    '.fpill, .fpill-lost, .fpill-found, .sb-cat-item, .dropdown-item[href*="type="], .dropdown-item[href*="cat="]'
+);
+
+feedControls.forEach(control => {
+    control.addEventListener('click', function () {
+        // Store flag to scroll to feed after page reload
+        sessionStorage.setItem('scrollToFeed', 'true');
+    });
+});
+
+// Scroll to feed on page load if filters were changed
+window.addEventListener('load', function () {
+    if (sessionStorage.getItem('scrollToFeed') === 'true') {
+        setTimeout(scrollToFeed, 300);
+        sessionStorage.removeItem('scrollToFeed');
+    }
+});
+

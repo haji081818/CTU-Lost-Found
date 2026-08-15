@@ -30,7 +30,7 @@
                 <h6 class="text-white fw-bold mb-3">Navigation</h6>
                 <ul class="list-unstyled small d-flex flex-column gap-2 mb-0">
                     <li><a href="index.php" class="text-decoration-none" style="color: #CBD5E0;"><i class="bi bi-chevron-right me-1 small"></i> Home Feed</a></li>
-                    <li><a href="my_posts.php" class="text-decoration-none" style="color: #CBD5E0;"><i class="bi bi-chevron-right me-1 small"></i> My Posts</a></li>
+                    <li><a href="my-posts.php" class="text-decoration-none" style="color: #CBD5E0;"><i class="bi bi-chevron-right me-1 small"></i> My Posts</a></li>
                     <li><a href="claims.php" class="text-decoration-none" style="color: #CBD5E0;"><i class="bi bi-chevron-right me-1 small"></i> Claims Center</a></li>
                     <li><a href="profile.php" class="text-decoration-none" style="color: #CBD5E0;"><i class="bi bi-chevron-right me-1 small"></i> User Profile</a></li>
                 </ul>
