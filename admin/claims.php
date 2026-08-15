@@ -2,6 +2,7 @@
 $pageTitle   = 'Claims — Admin';
 $topbarTitle = 'All Claims';
 $topbarIcon  = 'bell-fill';
+require_once __DIR__ . '/../config/db.php';
 require_once __DIR__ . '/includes/header.php';
 
 $statusFilter = $_GET['status'] ?? 'all';

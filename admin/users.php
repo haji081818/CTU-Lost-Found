@@ -2,6 +2,7 @@
 $pageTitle   = 'Users — Admin';
 $topbarTitle = 'Manage Users';
 $topbarIcon  = 'people-fill';
+require_once __DIR__ . '/../config/db.php';
 require_once __DIR__ . '/includes/header.php';
 
 $search = trim($_GET['q'] ?? '');
@@ -89,11 +90,14 @@ $users = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
                         <a href="edit_user.php?id=<?= $u['id'] ?>" class="btn btn-xs btn-outline-secondary" style="padding:.2rem .5rem;font-size:.75rem">
                             <i class="bi bi-pencil"></i>
                         </a>
-                        <a href="actions/delete_user.php?id=<?= $u['id'] ?>"
-                           class="btn btn-xs btn-outline-danger" style="padding:.2rem .5rem;font-size:.75rem"
-                           onclick="return confirm('Delete <?= e($u['name']) ?>? This will also delete all their posts.')">
-                            <i class="bi bi-trash"></i>
-                        </a>
+                        <form action="actions/delete_user.php" method="post" class="d-inline">
+                            <?= csrfField() ?>
+                            <input type="hidden" name="id" value="<?= $u['id'] ?>">
+                            <button type="submit" class="btn btn-xs btn-outline-danger" style="padding:.2rem .5rem;font-size:.75rem"
+                                    onclick="return confirm('Delete <?= e($u['name']) ?>? This will also delete all their posts.')">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </form>
                     </div>
                 </td>
             </tr>

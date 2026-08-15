@@ -1,5 +1,6 @@
 <?php
 $pageTitle = 'My Profile — CTU Lost & Found';
+require_once __DIR__ . '/config/db.php';
 require_once __DIR__ . '/includes/header.php';
 requireLogin();
 
@@ -27,6 +28,7 @@ $user = $stmt->get_result()->fetch_assoc();
             <div class="detail-card">
                 <h6 class="sb-section-title mb-3"><i class="bi bi-person-fill me-2 text-primary"></i>Personal Information</h6>
                 <form action="actions/update_profile.php" method="post" enctype="multipart/form-data">
+                    <?= csrfField() ?>
                     <div class="d-flex align-items-center gap-3 mb-4">
                         <?php if ($user['avatar']): ?>
                             <img src="<?= UPLOAD_URL . e($user['avatar']) ?>" alt="Avatar"
@@ -129,6 +131,7 @@ $user = $stmt->get_result()->fetch_assoc();
             <div class="detail-card">
                 <h6 class="sb-section-title mb-3"><i class="bi bi-shield-lock-fill me-2 text-primary"></i>Change Password</h6>
                 <form action="actions/change_password.php" method="post">
+                    <?= csrfField() ?>
                     <div class="mb-3">
                         <label class="form-label">Current Password</label>
                         <input type="password" name="current_password" class="form-control" required>

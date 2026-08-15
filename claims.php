@@ -1,5 +1,6 @@
 <?php
 $pageTitle = 'Claims — CTU Lost & Found';
+require_once __DIR__ . '/config/db.php';
 require_once __DIR__ . '/includes/header.php';
 requireLogin();
 
@@ -67,14 +68,22 @@ $sentClaims = $sent->get_result()->fetch_all(MYSQLI_ASSOC);
                     <div class="text-muted" style="font-size:.7rem"><?= timeAgo($c['created_at']) ?></div>
                     <?php if ($c['status'] === 'pending'): ?>
                     <div class="d-flex gap-2 mt-2">
-                        <a href="actions/claim_action.php?id=<?= $c['id'] ?>&action=approve"
-                           class="btn btn-sm btn-success">
-                            <i class="bi bi-check me-1"></i>Approve
-                        </a>
-                        <a href="actions/claim_action.php?id=<?= $c['id'] ?>&action=reject"
-                           class="btn btn-sm btn-outline-danger">
-                            <i class="bi bi-x me-1"></i>Reject
-                        </a>
+                        <form action="actions/claim_action.php" method="post" class="d-inline">
+                            <?= csrfField() ?>
+                            <input type="hidden" name="id" value="<?= $c['id'] ?>">
+                            <input type="hidden" name="action" value="approve">
+                            <button type="submit" class="btn btn-sm btn-success">
+                                <i class="bi bi-check me-1"></i>Approve
+                            </button>
+                        </form>
+                        <form action="actions/claim_action.php" method="post" class="d-inline">
+                            <?= csrfField() ?>
+                            <input type="hidden" name="id" value="<?= $c['id'] ?>">
+                            <input type="hidden" name="action" value="reject">
+                            <button type="submit" class="btn btn-sm btn-outline-danger">
+                                <i class="bi bi-x me-1"></i>Reject
+                            </button>
+                        </form>
                     </div>
                     <?php endif; ?>
                 </div>

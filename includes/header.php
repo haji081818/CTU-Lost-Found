@@ -1,5 +1,4 @@
 <?php
-if (session_status() === PHP_SESSION_NONE) session_start();
 require_once __DIR__ . '/../config/db.php';
 
 $currentPage = basename($_SERVER['PHP_SELF'], '.php');
@@ -158,6 +157,7 @@ if ($loggedIn) {
             </div>
             <div class="modal-body">
                 <form action="<?= BASE_URL ?>actions/post_item.php" method="post" enctype="multipart/form-data" id="postForm">
+                    <?= csrfField() ?>
                     <!-- Type Toggle -->
                     <div class="mb-3">
                         <label class="form-label fw-semibold">I want to report a:</label>

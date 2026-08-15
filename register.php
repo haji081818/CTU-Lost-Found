@@ -1,9 +1,16 @@
 <?php
 $pageTitle = 'Register — CTU Lost & Found';
+require_once __DIR__ . '/config/db.php';
 require_once __DIR__ . '/includes/header.php';
 if (isLoggedIn()) redirect(BASE_URL);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // CSRF token validation
+    if (!isset($_POST['csrf_token']) || !verifyCsrfToken($_POST['csrf_token'])) {
+        setFlash('error', 'Invalid request. Please try again.');
+        redirect(BASE_URL . 'register.php');
+    }
+
     $name       = trim($_POST['name']       ?? '');
     $email      = trim($_POST['email']      ?? '');
     $studentId  = trim($_POST['student_id'] ?? '');
@@ -60,6 +67,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <p class="auth-sub">Join CTU Danao Lost &amp; Found</p>
 
         <form action="" method="post">
+            <?= csrfField() ?>
             <div class="mb-3">
                 <label class="form-label">Full Name <span class="text-danger">*</span></label>
                 <input type="text" name="name" class="form-control" placeholder="Juan dela Cruz" required>

@@ -128,16 +128,23 @@ $similar = $simStmt->get_result()->fetch_all(MYSQLI_ASSOC);
                 <?php if ($isOwner && $post['status'] === 'active'): ?>
                 <hr>
                 <div class="d-flex gap-2 flex-wrap">
-                    <a href="actions/update_status.php?id=<?= $post['id'] ?>&status=returned"
-                       class="btn btn-sm btn-outline-primary"
-                       onclick="return confirm('Mark this item as returned?')">
-                        <i class="bi bi-check-circle me-1"></i>Mark Returned
-                    </a>
-                    <a href="actions/delete_post.php?id=<?= $post['id'] ?>"
-                       class="btn btn-sm btn-outline-danger"
-                       onclick="return confirm('Delete this post?')">
-                        <i class="bi bi-trash me-1"></i>Delete
-                    </a>
+                    <form action="actions/update_status.php" method="post" class="d-inline">
+                        <?= csrfField() ?>
+                        <input type="hidden" name="id" value="<?= $post['id'] ?>">
+                        <input type="hidden" name="status" value="returned">
+                        <button type="submit" class="btn btn-sm btn-outline-primary"
+                                onclick="return confirm('Mark this item as returned?')">
+                            <i class="bi bi-check-circle me-1"></i>Mark Returned
+                        </button>
+                    </form>
+                    <form action="actions/delete_post.php" method="post" class="d-inline">
+                        <?= csrfField() ?>
+                        <input type="hidden" name="id" value="<?= $post['id'] ?>">
+                        <button type="submit" class="btn btn-sm btn-outline-danger"
+                                onclick="return confirm('Delete this post?')">
+                            <i class="bi bi-trash me-1"></i>Delete
+                        </button>
+                    </form>
                 </div>
                 <?php endif; ?>
 
@@ -178,14 +185,22 @@ $similar = $simStmt->get_result()->fetch_all(MYSQLI_ASSOC);
                 <p class="text-muted small mb-2"><?= e($claim['description']) ?></p>
                 <?php if ($claim['status'] === 'pending' && $post['status'] === 'active'): ?>
                 <div class="d-flex gap-2">
-                    <a href="actions/claim_action.php?id=<?= $claim['id'] ?>&action=approve"
-                       class="btn btn-sm btn-success">
-                        <i class="bi bi-check me-1"></i>Approve
-                    </a>
-                    <a href="actions/claim_action.php?id=<?= $claim['id'] ?>&action=reject"
-                       class="btn btn-sm btn-outline-danger">
-                        <i class="bi bi-x me-1"></i>Reject
-                    </a>
+                    <form action="actions/claim_action.php" method="post" class="d-inline">
+                        <?= csrfField() ?>
+                        <input type="hidden" name="id" value="<?= $claim['id'] ?>">
+                        <input type="hidden" name="action" value="approve">
+                        <button type="submit" class="btn btn-sm btn-success">
+                            <i class="bi bi-check me-1"></i>Approve
+                        </button>
+                    </form>
+                    <form action="actions/claim_action.php" method="post" class="d-inline">
+                        <?= csrfField() ?>
+                        <input type="hidden" name="id" value="<?= $claim['id'] ?>">
+                        <input type="hidden" name="action" value="reject">
+                        <button type="submit" class="btn btn-sm btn-outline-danger">
+                            <i class="bi bi-x me-1"></i>Reject
+                        </button>
+                    </form>
                 </div>
                 <?php endif; ?>
             </div>
@@ -243,6 +258,7 @@ $similar = $simStmt->get_result()->fetch_all(MYSQLI_ASSOC);
                     Describe the item to prove ownership. The poster will review your claim.
                 </p>
                 <form action="actions/submit_claim.php" method="post">
+                    <?= csrfField() ?>
                     <input type="hidden" name="post_id" value="<?= $post['id'] ?>">
                     <div class="mb-3">
                         <label class="form-label fw-semibold">Your Description</label>

@@ -1,12 +1,29 @@
 <?php
-if (session_status() === PHP_SESSION_NONE) session_start();
 require_once __DIR__ . '/../config/db.php';
+
+/* ---------------------------
+   CSRF VALIDATION
+----------------------------*/
+if (!isset($_POST['csrf_token']) || !verifyCsrfToken($_POST['csrf_token'])) {
+    setFlash('error', 'Invalid request. Please try again.');
+    redirect(BASE_URL);
+}
+
+/* ---------------------------
+   ONLY POST REQUEST
+----------------------------*/
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    setFlash('error', 'Invalid request method.');
+    redirect(BASE_URL);
+}
+
 requireLogin();
 
-$claimId = (int)($_GET['id']     ?? 0);
-$action  =       $_GET['action'] ?? '';
+$claimId = (int)($_POST['id']     ?? 0);
+$action  =       $_POST['action'] ?? '';
 
 if (!$claimId || !in_array($action, ['approve','reject'])) {
+    setFlash('error', 'Invalid parameters.');
     redirect(BASE_URL);
 }
 

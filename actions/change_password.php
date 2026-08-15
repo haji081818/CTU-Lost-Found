@@ -1,6 +1,22 @@
 <?php
-if (session_status() === PHP_SESSION_NONE) session_start();
 require_once __DIR__ . '/../config/db.php';
+
+/* ---------------------------
+   CSRF VALIDATION
+----------------------------*/
+if (!isset($_POST['csrf_token']) || !verifyCsrfToken($_POST['csrf_token'])) {
+    setFlash('error', 'Invalid request. Please try again.');
+    redirect(BASE_URL . 'profile.php');
+}
+
+/* ---------------------------
+   ONLY POST REQUEST
+----------------------------*/
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    setFlash('error', 'Invalid request method.');
+    redirect(BASE_URL . 'profile.php');
+}
+
 requireLogin();
 
 $current = $_POST['current_password']  ?? '';
