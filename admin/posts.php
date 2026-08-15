@@ -2,6 +2,7 @@
 $pageTitle   = 'All Posts — Admin';
 $topbarTitle = 'All Posts';
 $topbarIcon  = 'collection-fill';
+require_once __DIR__ . '/../config/db.php';
 require_once __DIR__ . '/includes/header.php';
 
 $search     = trim($_GET['q']    ?? '');
@@ -77,11 +78,14 @@ $posts = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
                 <td class="small text-muted"><?= e($p['location']) ?></td>
                 <td class="small text-muted"><?= timeAgo($p['created_at']) ?></td>
                 <td>
-                    <a href="actions/delete_post.php?id=<?= $p['id'] ?>"
-                       class="btn btn-xs btn-outline-danger" style="padding:.2rem .5rem;font-size:.75rem"
-                       onclick="return confirm('Delete this post?')">
-                        <i class="bi bi-trash"></i>
-                    </a>
+                    <form action="actions/delete_post.php" method="post" class="d-inline">
+                        <?= csrfField() ?>
+                        <input type="hidden" name="id" value="<?= $p['id'] ?>">
+                        <button type="submit" class="btn btn-xs btn-outline-danger" style="padding:.2rem .5rem;font-size:.75rem"
+                                onclick="return confirm('Delete this post?')">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </form>
                 </td>
             </tr>
             <?php endforeach; ?>

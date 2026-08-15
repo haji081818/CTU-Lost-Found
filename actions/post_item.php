@@ -1,31 +1,12 @@
 <?php
-if (session_status() === PHP_SESSION_NONE) session_start();
-
 require_once __DIR__ . '/../config/db.php';
 
 /* ---------------------------
-   HELPERS
+   CSRF VALIDATION
 ----------------------------*/
-if (!function_exists('requireLogin')) {
-    function requireLogin() {
-        if (empty($_SESSION['user_id'])) {
-            header("Location: " . BASE_URL . "/login.php");
-            exit;
-        }
-    }
-}
-
-if (!function_exists('redirect')) {
-    function redirect($url) {
-        header("Location: $url");
-        exit;
-    }
-}
-
-if (!function_exists('setFlash')) {
-    function setFlash($type, $message) {
-        $_SESSION['flash'][$type] = $message;
-    }
+if (!isset($_POST['csrf_token']) || !verifyCsrfToken($_POST['csrf_token'])) {
+    setFlash('error', 'Invalid request. Please try again.');
+    redirect(BASE_URL);
 }
 
 /* ---------------------------
@@ -77,21 +58,12 @@ if (!empty($contactNumber)) {
 $imageName = null;
 
 if (!empty($_FILES['image']['name'])) {
-
     $file = $_FILES['image'];
 
-    if ($file['error'] !== UPLOAD_ERR_OK) {
-        setFlash('error', 'Image upload failed.');
-        redirect(BASE_URL);
-    }
-
-    if ($file['size'] > MAX_FILE_SIZE) {
-        setFlash('error', 'Image must be under 5MB.');
-        redirect(BASE_URL);
-    }
-
-    if (!in_array($file['type'], ALLOWED_TYPES)) {
-        setFlash('error', 'Only JPG, PNG, GIF, WEBP allowed.');
+    // Use secure file validation
+    $validationError = validateUploadedFile($file);
+    if ($validationError !== null) {
+        setFlash('error', $validationError);
         redirect(BASE_URL);
     }
 

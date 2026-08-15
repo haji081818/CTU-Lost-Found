@@ -1,5 +1,6 @@
 <?php
 $pageTitle = 'My Posts — CTU Lost & Found';
+require_once __DIR__ . '/config/db.php';
 require_once __DIR__ . '/includes/header.php';
 requireLogin();
 
@@ -81,10 +82,14 @@ $catIcons = [
                     <a href="item.php?id=<?= $p['id'] ?>" class="btn btn-sm btn-outline-primary">
                         <i class="bi bi-eye"></i>
                     </a>
-                    <a href="actions/delete_post.php?id=<?= $p['id'] ?>" class="btn btn-sm btn-outline-danger"
-                       onclick="return confirm('Delete this post?')">
-                        <i class="bi bi-trash"></i>
-                    </a>
+                    <form action="actions/delete_post.php" method="post" class="d-inline">
+                        <?= csrfField() ?>
+                        <input type="hidden" name="id" value="<?= $p['id'] ?>">
+                        <button type="submit" class="btn btn-sm btn-outline-danger"
+                                onclick="return confirm('Delete this post?')">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </form>
                 </div>
             </div>
         </div>

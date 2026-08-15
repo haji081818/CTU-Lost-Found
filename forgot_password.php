@@ -1,5 +1,6 @@
 <?php
 $pageTitle = 'Forgot Password — CTU Lost & Found';
+require_once __DIR__ . '/config/db.php';
 require_once __DIR__ . '/includes/header.php';
 
 // ── PHPMailer ──────────────────────────────────────────────
@@ -11,15 +12,19 @@ require_once __DIR__ . '/PHPMailer/src/Exception.php';
 require_once __DIR__ . '/PHPMailer/src/PHPMailer.php';
 require_once __DIR__ . '/PHPMailer/src/SMTP.php';
 
-// ── YOUR GMAIL SETTINGS — edit these ──────────────────────
-define('MAIL_USERNAME', 'groovifyui@gmail.com');
-define('MAIL_PASSWORD', 'ouknuefctybytomd');
+// ── Email Configuration from config/db.php ──────────────────────
 define('MAIL_FROM_NAME', 'CTU Danao Lost & Found');
 // ──────────────────────────────────────────────────────────
 
 if (isLoggedIn()) redirect(BASE_URL);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // CSRF token validation
+    if (!isset($_POST['csrf_token']) || !verifyCsrfToken($_POST['csrf_token'])) {
+        setFlash('error', 'Invalid request. Please try again.');
+        redirect(BASE_URL . 'forgot_password.php');
+    }
+
     $email = trim($_POST['email'] ?? '');
 
     if (!$email || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
@@ -50,12 +55,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $mail = new PHPMailer(true);
         try {
             $mail->isSMTP();
-            $mail->Host       = 'smtp.gmail.com';
+            $mail->Host       = MAIL_HOST;
             $mail->SMTPAuth   = true;
             $mail->Username   = MAIL_USERNAME;
             $mail->Password   = MAIL_PASSWORD;
-            $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-            $mail->Port       = 587;
+            $mail->SMTPSecure = MAIL_ENCRYPTION === 'tls' ? PHPMailer::ENCRYPTION_STARTTLS : PHPMailer::ENCRYPTION_SMTPS;
+            $mail->Port       = MAIL_PORT;
 
             $mail->setFrom(MAIL_USERNAME, MAIL_FROM_NAME);
             $mail->addAddress($email, $name);
@@ -123,6 +128,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <p class="auth-sub">Enter your registered email and we'll send you a reset link.</p>
 
         <form action="" method="post" novalidate>
+            <?= csrfField() ?>
             <div class="mb-4">
                 <label class="form-label">Email Address</label>
                 <input

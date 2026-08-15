@@ -1,5 +1,6 @@
 <?php
 $pageTitle = 'Reset Password — CTU Lost & Found';
+require_once __DIR__ . '/config/db.php';
 require_once __DIR__ . '/includes/header.php';
 
 if (isLoggedIn()) redirect(BASE_URL);
@@ -31,45 +32,37 @@ if (!$reset) {
     redirect(BASE_URL . 'forgot_password.php');
 }
 
-if (!$reset) {
-    // DEBUG - remove after fixing
-    $check = $conn->prepare("SELECT token, used, expires_at FROM password_resets WHERE token = ?");
-    $check->bind_param('s', $token);
-    $check->execute();
-    $row = $check->get_result()->fetch_assoc();
-    if (!$row) {
-        die('<b>Token not found in database at all.</b><br>Token received: ' . htmlspecialchars($token));
-    } else {
-        die('<b>Token found but failed check:</b><br>used = ' . $row['used'] . '<br>expires_at = ' . $row['expires_at'] . '<br>NOW() = ' . date('Y-m-d H:i:s') . '<br>Token: ' . htmlspecialchars($token));
-    }
-}
-
 // Handle form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $newPassword     = $_POST['new_password']     ?? '';
-    $confirmPassword = $_POST['confirm_password'] ?? '';
-
-    if (!$newPassword || !$confirmPassword) {
-        $error = 'Both password fields are required.';
-    } elseif (strlen($newPassword) < 6) {
-        $error = 'Password must be at least 6 characters.';
-    } elseif ($newPassword !== $confirmPassword) {
-        $error = 'Passwords do not match.';
+    // CSRF token validation
+    if (!isset($_POST['csrf_token']) || !verifyCsrfToken($_POST['csrf_token'])) {
+        $error = 'Invalid request. Please try again.';
     } else {
-        $hash = password_hash($newPassword, PASSWORD_BCRYPT);
+        $newPassword     = $_POST['new_password']     ?? '';
+        $confirmPassword = $_POST['confirm_password'] ?? '';
 
-        // Update user's password
-        $upd = $conn->prepare("UPDATE users SET password = ? WHERE email = ?");
-        $upd->bind_param('ss', $hash, $reset['email']);
-        $upd->execute();
+        if (!$newPassword || !$confirmPassword) {
+            $error = 'Both password fields are required.';
+        } elseif (strlen($newPassword) < 6) {
+            $error = 'Password must be at least 6 characters.';
+        } elseif ($newPassword !== $confirmPassword) {
+            $error = 'Passwords do not match.';
+        } else {
+            $hash = password_hash($newPassword, PASSWORD_BCRYPT);
 
-        // Mark token as used
-        $mark = $conn->prepare("UPDATE password_resets SET used = 1 WHERE token = ?");
-        $mark->bind_param('s', $token);
-        $mark->execute();
+            // Update user's password
+            $upd = $conn->prepare("UPDATE users SET password = ? WHERE email = ?");
+            $upd->bind_param('ss', $hash, $reset['email']);
+            $upd->execute();
 
-        setFlash('success', 'Password reset successfully! You can now log in with your new password.');
-        redirect(BASE_URL . 'login.php');
+            // Mark token as used
+            $mark = $conn->prepare("UPDATE password_resets SET used = 1 WHERE token = ?");
+            $mark->bind_param('s', $token);
+            $mark->execute();
+
+            setFlash('success', 'Password reset successfully! You can now log in with your new password.');
+            redirect(BASE_URL . 'login.php');
+        }
     }
 }
 ?>
@@ -86,6 +79,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <?php endif; ?>
 
         <form action="?token=<?= urlencode($token) ?>" method="post" novalidate>
+            <?= csrfField() ?>
             <div class="mb-3">
                 <label class="form-label">New Password</label>
                 <div class="input-group">

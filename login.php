@@ -1,10 +1,17 @@
 <?php
 $pageTitle = 'Log In — CTU Lost & Found';
+require_once __DIR__ . '/config/db.php';
 require_once __DIR__ . '/includes/header.php';
 
 if (isLoggedIn()) redirect(BASE_URL);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // CSRF token validation
+    if (!isset($_POST['csrf_token']) || !verifyCsrfToken($_POST['csrf_token'])) {
+        setFlash('error', 'Invalid request. Please try again.');
+        redirect(BASE_URL . 'login.php');
+    }
+
     $email    = trim($_POST['email']    ?? '');
     $password =      $_POST['password'] ?? '';
     $stmt = $conn->prepare("SELECT id, name, password, is_admin FROM users WHERE email = ?");
@@ -30,6 +37,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <p class="auth-sub">Log in to post and manage items</p>
 
         <form action="" method="post">
+            <?= csrfField() ?>
             <div class="mb-3">
                 <label class="form-label">Email Address</label>
                 <input type="email" name="email" class="form-control" placeholder="you@ctu.edu.ph" required autofocus>

@@ -31,13 +31,19 @@
 }
 
 /* ── Base ───────────────────────────────────── */
-*, *::before, *::after { box-sizing: border-box; }
+*, *::before, *::after {
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+}
 
-html { scroll-behavior: smooth; }
+html {
+    scroll-behavior: smooth;
+    background-color: #F0F4F8;
+}
 
 body {
     font-family: 'Nunito', sans-serif;
-    background: var(--bg-page);
+    background-color: #F0F4F8;
     color: var(--text-dark);
     min-height: 100vh;
     display: flex;
@@ -157,7 +163,11 @@ a:hover { color: var(--primary-mid); }
 }
 
 /* ── Main ───────────────────────────────────── */
-.main-content { flex: 1; padding-bottom: 0; }
+.main-content {
+    flex: 1;
+    padding-bottom: 0;
+    background-color: #F0F4F8;
+}
 
 /* ── Page Hero / Header ─────────────────────── */
 .page-hero {
@@ -365,6 +375,7 @@ a:hover { color: var(--primary-mid); }
     line-height: 1.3;
     display: -webkit-box;
     -webkit-line-clamp: 2;
+    line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
 }
@@ -385,6 +396,7 @@ a:hover { color: var(--primary-mid); }
     flex: 1;
     display: -webkit-box;
     -webkit-line-clamp: 2;
+    line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
 }
@@ -697,7 +709,7 @@ a:hover { color: var(--primary-mid); }
 
 /* ── Footer ─────────────────────────────────── */
 .site-footer {
-    background: var(--primary);
+    background-color: var(--primary);
     color: rgba(255,255,255,.7);
 }
 
@@ -1126,6 +1138,7 @@ a:hover { color: var(--primary-mid); }
     line-height: 1.3;
     display: -webkit-box;
     -webkit-line-clamp: 2;
+    line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
 }
@@ -1137,6 +1150,7 @@ a:hover { color: var(--primary-mid); }
     flex: 1;
     display: -webkit-box;
     -webkit-line-clamp: 2;
+    line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
     margin-bottom: .75rem;
@@ -1369,13 +1383,6 @@ a:hover { color: var(--primary-mid); }
 }
 
 /* ── Animations ─────────────────────────────── */
-@keyframes pageFadeIn {
-    from { opacity: 0; }
-    to   { opacity: 1; }
-}
-body {
-    animation: pageFadeIn 0.15s ease both;
-}
 
 /* No items found (live search) */
 #noResults {

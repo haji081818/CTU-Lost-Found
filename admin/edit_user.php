@@ -2,6 +2,7 @@
 $pageTitle   = 'Edit User — Admin';
 $topbarTitle = 'Edit User';
 $topbarIcon  = 'pencil-fill';
+require_once __DIR__ . '/../config/db.php';
 require_once __DIR__ . '/includes/header.php';
 
 $id   = (int)($_GET['id'] ?? 0);
@@ -26,6 +27,7 @@ if (!$user) { setFlash('error','User not found.'); redirect(BASE_URL.'admin/user
     </h6>
 
     <form action="actions/update_user.php" method="post">
+        <?= csrfField() ?>
         <input type="hidden" name="id" value="<?= $user['id'] ?>">
 
         <div class="row g-3">

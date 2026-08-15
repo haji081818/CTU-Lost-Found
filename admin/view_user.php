@@ -2,6 +2,7 @@
 $pageTitle   = 'View User — Admin';
 $topbarTitle = 'User Details';
 $topbarIcon  = 'person-fill';
+require_once __DIR__ . '/../config/db.php';
 require_once __DIR__ . '/includes/header.php';
 
 $id   = (int)($_GET['id'] ?? 0);
@@ -31,10 +32,14 @@ $userClaims = $claims->get_result()->fetch_all(MYSQLI_ASSOC);
 <div class="d-flex align-items-center gap-2 mb-3">
     <a href="users.php" class="btn btn-sm btn-outline-secondary"><i class="bi bi-arrow-left me-1"></i>Back</a>
     <a href="edit_user.php?id=<?= $user['id'] ?>" class="btn btn-sm btn-primary"><i class="bi bi-pencil me-1"></i>Edit User</a>
-    <a href="actions/delete_user.php?id=<?= $user['id'] ?>" class="btn btn-sm btn-outline-danger ms-auto"
-       onclick="return confirm('Delete this user and all their posts?')">
-        <i class="bi bi-trash me-1"></i>Delete User
-    </a>
+    <form action="actions/delete_user.php" method="post" class="d-inline ms-auto">
+        <?= csrfField() ?>
+        <input type="hidden" name="id" value="<?= $user['id'] ?>">
+        <button type="submit" class="btn btn-sm btn-outline-danger"
+                onclick="return confirm('Delete this user and all their posts?')">
+            <i class="bi bi-trash me-1"></i>Delete User
+        </button>
+    </form>
 </div>
 
 <div class="row g-3">

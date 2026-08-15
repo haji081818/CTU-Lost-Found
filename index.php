@@ -1,5 +1,6 @@
 <?php
 $pageTitle = 'CTU - Danao Lost & Found';
+require_once __DIR__ . '/config/db.php';
 require_once __DIR__ . '/includes/header.php';
 
 // ── Query Parameters ──────────────────────────────────────────
@@ -97,9 +98,9 @@ $catIcons = [
                     <a href="<?= BASE_URL ?>register.php" class="btn btn-hero-primary">
                         <i class="bi bi-person-plus me-2"></i>Get Started Free
                     </a>
-                    <a href="#feed" class="btn btn-hero-ghost">
+                    <button type="button" class="btn btn-hero-ghost" id="browseItemsBtn">
                         Browse Items <i class="bi bi-arrow-down ms-1"></i>
-                    </a>
+                    </button>
                 </div>
                 <?php else: ?>
                 <button class="btn btn-hero-primary" data-bs-toggle="modal" data-bs-target="#postModal">

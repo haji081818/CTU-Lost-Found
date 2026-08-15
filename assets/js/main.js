@@ -6,7 +6,7 @@ if (toast) {
     setTimeout(() => {
         toast.style.transition = 'opacity 0.3s ease-out';
         toast.style.opacity = '0';
-        setTimeout(() => toast.remove(), 300);-
+        setTimeout(() => toast.remove(), 300);
     }, 4000);  
 }
 
@@ -65,10 +65,14 @@ if (imageInput) {
 }
 
 // ── Smooth scroll for hero CTA ────────────────
-document.querySelectorAll('a[href="#feed"]').forEach(anchor => {
-    anchor.addEventListener('click', function (e) {
+const browseItemsBtn = document.getElementById('browseItemsBtn');
+if (browseItemsBtn) {
+    browseItemsBtn.addEventListener('click', function (e) {
         e.preventDefault();
         const target = document.getElementById('feed');
-        if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        if (target) {
+            // Use smooth scroll for better UX
+            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
     });
-});
+}

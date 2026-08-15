@@ -1,0 +1,29 @@
+# Disable PHP execution in uploads directory
+<FilesMatch "\.php$">
+    Order Allow,Deny
+    Deny from all
+</FilesMatch>
+
+# Prevent execution of other script files
+<FilesMatch "\.(php|php5|php7|phtml|cgi|pl|py|jsp|asp|sh|rb)$">
+    Order Allow,Deny
+    Deny from all
+</FilesMatch>
+
+# Set default handler to prevent script execution
+<IfModule mod_mime.c>
+    RemoveHandler .php .php5 .php7 .phtml .cgi .pl .py .jsp .asp .sh .rb
+    RemoveType .php .php5 .php7 .phtml .cgi .pl .py .jsp .asp .sh .rb
+</IfModule>
+
+# Turn off PHP engine
+<IfModule mod_php7.c>
+    php_flag engine off
+</IfModule>
+
+<IfModule mod_php8.c>
+    php_flag engine off
+</IfModule>
+
+# Prevent directory browsing
+Options -Indexes

@@ -1,7 +1,23 @@
 <?php
 /* admin/actions/update_user.php */
-if (session_status() === PHP_SESSION_NONE) session_start();
 require_once __DIR__ . '/../../config/db.php';
+
+/* ---------------------------
+   CSRF VALIDATION
+----------------------------*/
+if (!isset($_POST['csrf_token']) || !verifyCsrfToken($_POST['csrf_token'])) {
+    setFlash('error', 'Invalid request. Please try again.');
+    redirect(BASE_URL . 'admin/users.php');
+}
+
+/* ---------------------------
+   ONLY POST REQUEST
+----------------------------*/
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    setFlash('error', 'Invalid request method.');
+    redirect(BASE_URL . 'admin/users.php');
+}
+
 if (!isLoggedIn() || empty($_SESSION['is_admin'])) redirect(BASE_URL . 'admin/login.php');
 
 $id          = (int)($_POST['id']           ?? 0);
@@ -30,12 +46,25 @@ if ($chk->get_result()->num_rows > 0) {
 if ($newPassword) {
     $hash = password_hash($newPassword, PASSWORD_BCRYPT);
     $stmt = $conn->prepare("UPDATE users SET name=?,email=?,student_id=?,phone=?,course=?,year_level=?,password=? WHERE id=?");
+    if (!$stmt) {
+        setFlash('error', 'Database error: ' . $conn->error);
+        redirect(BASE_URL . "admin/edit_user.php?id=$id");
+    }
     $stmt->bind_param('sssssssi', $name,$email,$studentId,$phone,$course,$yearLevel,$hash,$id);
 } else {
     $stmt = $conn->prepare("UPDATE users SET name=?,email=?,student_id=?,phone=?,course=?,year_level=? WHERE id=?");
+    if (!$stmt) {
+        setFlash('error', 'Database error: ' . $conn->error);
+        redirect(BASE_URL . "admin/edit_user.php?id=$id");
+    }
     $stmt->bind_param('ssssssi', $name,$email,$studentId,$phone,$course,$yearLevel,$id);
 }
 
-$stmt->execute();
-setFlash('success', 'User updated successfully.');
+if ($stmt->execute()) {
+    setFlash('success', 'User updated successfully.');
+} else {
+    setFlash('error', 'Failed to update user.');
+}
+
+$stmt->close();
 redirect(BASE_URL . "admin/view_user.php?id=$id");
