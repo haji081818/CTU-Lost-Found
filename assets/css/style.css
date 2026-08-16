@@ -50,6 +50,156 @@ body {
     flex-direction: column;
 }
 
+/* ── Smart Matching Styles ───────────────────── */
+.match-badge-icon {
+    width: 48px;
+    height: 48px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    color: white;
+}
+
+.match-card {
+    background: white;
+    border-radius: 12px;
+    padding: 1rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.match-score {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: bold;
+}
+
+.match-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.match-item-label {
+    margin-bottom: 0.5rem;
+    font-size: 0.7rem;
+    letter-spacing: 0.5px;
+}
+
+.match-item-details {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.match-thumb {
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin-bottom: 0.5rem;
+}
+
+.match-thumb-placeholder {
+    width: 60px;
+    height: 60px;
+    background: #F0F4F8;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #CBD5E0;
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.match-divider {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #E2E8F0;
+    font-size: 1.2rem;
+    padding: 0 0.5rem;
+}
+
+/* ── Feature 6: Messaging Styles ───────────────── */
+.messaging-container {
+    background: #F8FAFC;
+    border-radius: 8px;
+    padding: 1rem;
+    margin-top: 0.5rem;
+}
+
+.message-thread {
+    max-height: 300px;
+    overflow-y: auto;
+    margin-bottom: 1rem;
+    padding-right: 0.5rem;
+}
+
+.message {
+    margin-bottom: 0.75rem;
+    max-width: 80%;
+}
+
+.message-sent {
+    margin-left: auto;
+}
+
+.message-received {
+    margin-right: auto;
+}
+
+.message-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.25rem;
+    font-size: 0.75rem;
+}
+
+.message-time {
+    color: #718096;
+    font-size: 0.7rem;
+}
+
+.message-content {
+    padding: 0.5rem 0.75rem;
+    border-radius: 12px;
+    font-size: 0.85rem;
+    line-height: 1.4;
+}
+
+.message-sent .message-content {
+    background: #667eea;
+    color: white;
+    border-bottom-right-radius: 2px;
+}
+
+.message-received .message-content {
+    background: white;
+    color: #1A202C;
+    border: 1px solid #E2E8F0;
+    border-bottom-left-radius: 2px;
+}
+
+.message-form {
+    margin-top: 0.5rem;
+}
+
+.message-form .form-control {
+    border-radius: 20px 0 0 20px;
+}
+
+.message-form .btn {
+    border-radius: 0 20px 20px 0;
+}
+}
+
 h1, h2, h3, h4, h5, h6, .navbar-brand, .btn {
     font-family: 'Outfit', sans-serif;
 }
