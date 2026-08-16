@@ -28,7 +28,7 @@ CREATE TABLE IF NOT EXISTS posts (
     location_details VARCHAR(255) DEFAULT NULL, -- Specific room/landmark details
     image       VARCHAR(255) DEFAULT NULL,
     contact_number VARCHAR(11) NULL,
-    status      ENUM('active','claimed','returned') DEFAULT 'active',
+    status      ENUM('active','claimed','returned','reunited') DEFAULT 'active',
     -- Feature 2: Secret Identifier & Anti-Fraud
     verification_question VARCHAR(255) NULL,
     verification_answer TEXT NULL, -- Encrypted or hashed
@@ -104,6 +104,44 @@ CREATE TABLE IF NOT EXISTS notifications (
     INDEX idx_user_id (user_id),
     INDEX idx_is_read (is_read),
     INDEX idx_type (type)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Feature: Community Sighting & Recovery Reports
+CREATE TABLE IF NOT EXISTS sightings (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    post_id INT NOT NULL,
+    reporter_id INT NOT NULL,
+    reporter_name VARCHAR(100) NOT NULL,
+    sighting_type ENUM('possession', 'custody', 'spotted') NOT NULL,
+    location_details TEXT NOT NULL,
+    custody_office VARCHAR(100) DEFAULT NULL,
+    message TEXT NOT NULL,
+    proof_image VARCHAR(255) DEFAULT NULL,
+    status ENUM('active', 'confirmed', 'dismissed') DEFAULT 'active',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE,
+    FOREIGN KEY (reporter_id) REFERENCES users(id) ON DELETE CASCADE,
+    INDEX idx_post_id (post_id),
+    INDEX idx_reporter_id (reporter_id),
+    INDEX idx_status (status),
+    INDEX idx_sighting_type (sighting_type)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Feature: Sighting Messages for In-App Recovery Chat
+CREATE TABLE IF NOT EXISTS sighting_messages (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    sighting_id INT NOT NULL,
+    sender_id INT NOT NULL,
+    receiver_id INT NOT NULL,
+    message TEXT NOT NULL,
+    is_read TINYINT(1) DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (sighting_id) REFERENCES sightings(id) ON DELETE CASCADE,
+    FOREIGN KEY (sender_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (receiver_id) REFERENCES users(id) ON DELETE CASCADE,
+    INDEX idx_sighting_id (sighting_id),
+    INDEX idx_sender_id (sender_id),
+    INDEX idx_receiver_id (receiver_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- Add new columns to existing tables if they don't exist (for existing installations)
@@ -256,6 +294,20 @@ SET @index_exists = (SELECT COUNT(*) FROM INFORMATION_SCHEMA.STATISTICS
 SET @sql = IF(@index_exists = 0, 
     'ALTER TABLE posts ADD INDEX idx_category (category)',
     'SELECT ''Index idx_category already exists''');
+
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+-- Add 'reunited' to posts status enum if not present
+SET @col_type = (SELECT COLUMN_TYPE FROM INFORMATION_SCHEMA.COLUMNS 
+                 WHERE TABLE_SCHEMA = 'ctu_lost_found' 
+                 AND TABLE_NAME = 'posts' 
+                 AND COLUMN_NAME = 'status');
+
+SET @sql = IF(@col_type NOT LIKE '%reunited%', 
+    'ALTER TABLE posts MODIFY COLUMN status ENUM(''active'',''claimed'',''returned'',''reunited'') DEFAULT ''active''',
+    'SELECT ''Status enum already includes reunited''');
 
 PREPARE stmt FROM @sql;
 EXECUTE stmt;

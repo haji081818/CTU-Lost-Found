@@ -797,6 +797,29 @@ a:hover { color: var(--primary-mid); }
 .claim-status-pill.approved { background: #D1FAE5; color: #065F46; }
 .claim-status-pill.rejected { background: #FEE2E2; color: #991B1B; }
 
+/* ── Sighting Section ─────────────────────────── */
+.sighting-item {
+    background: #fff;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    padding: 1rem;
+    margin-bottom: .75rem;
+    border-left: 4px solid var(--accent);
+}
+
+.sighting-status-pill {
+    padding: .15rem .55rem;
+    border-radius: 50px;
+    font-size: .72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    font-family: 'Outfit', sans-serif;
+}
+
+.sighting-status-pill.active { background: #DBEAFE; color: #1E40AF; }
+.sighting-status-pill.confirmed { background: #D1FAE5; color: #065F46; }
+.sighting-status-pill.dismissed { background: #FEE2E2; color: #991B1B; }
+
 /* ── Auth Pages ─────────────────────────────── */
 .auth-wrap {
     min-height: calc(100vh - 120px);
