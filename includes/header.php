@@ -81,6 +81,28 @@ $flash = getFlash();
                             <span class="d-lg-none ms-2">Claims</span>
                         </a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link nav-icon-btn <?= $currentPage === 'notifications' ? 'active' : '' ?>" href="<?= BASE_URL ?>notifications.php" title="Notifications">
+                            <i class="bi bi-chat-dots"></i>
+                            <?php
+                            // Get unread notification count
+                            $notifCount = 0;
+                            if ($loggedIn) {
+                                $notifCheck = $conn->query("SHOW TABLES LIKE 'notifications'");
+                                if ($notifCheck && $notifCheck->num_rows > 0) {
+                                    $notifStmt = $conn->prepare("SELECT COUNT(*) as count FROM notifications WHERE user_id = ? AND is_read = 0");
+                                    $notifStmt->bind_param('i', $_SESSION['user_id']);
+                                    $notifStmt->execute();
+                                    $notifResult = $notifStmt->get_result()->fetch_assoc();
+                                    $notifCount = $notifResult['count'];
+                                }
+                            }
+                            if ($notifCount > 0): ?>
+                                <span class="notification-badge"><?= $notifCount ?></span>
+                            <?php endif; ?>
+                            <span class="d-lg-none ms-2">Notifications</span>
+                        </a>
+                    </li>
                     <li class="nav-item ms-lg-2">
                         <button class="btn btn-post" data-bs-toggle="modal" data-bs-target="#postModal">
                             <i class="bi bi-plus-lg"></i> Post Item
@@ -196,10 +218,48 @@ if ($loggedIn) {
                             <label class="form-label fw-semibold">Description <span class="text-danger">*</span></label>
                             <textarea name="description" class="form-control" rows="3" placeholder="Describe the item in detail — color, brand, distinguishing marks..." required maxlength="1000"></textarea>
                         </div>
+                        <?php
+                        // Check if the new location columns exist
+                        $hasLocationColumns = false;
+                        $campusLocations = [];
+                        
+                        try {
+                            $columnCheck = $conn->query("SHOW COLUMNS FROM posts LIKE 'location_zone'");
+                            $hasLocationColumns = $columnCheck && $columnCheck->num_rows > 0;
+                            
+                            if ($hasLocationColumns) {
+                                $campusLocations = require __DIR__ . '/campus_locations.php';
+                            }
+                        } catch (Exception $e) {
+                            // If there's any error, fall back to simple location input
+                            $hasLocationColumns = false;
+                        }
+                        
+                        if ($hasLocationColumns && !empty($campusLocations)): ?>
                         <div class="col-md-8">
+                            <label class="form-label fw-semibold">Campus Location <span class="text-danger">*</span></label>
+                            <select name="location_zone" class="form-select" required id="locationZoneSelect">
+                                <option value="" disabled selected>Select campus area...</option>
+                                <?php foreach ($campusLocations as $zoneKey => $zoneData): ?>
+                                    <optgroup label="<?= e($zoneData['label']) ?>">
+                                        <?php foreach ($zoneData['locations'] as $locKey => $locName): ?>
+                                            <option value="<?= e($locKey) ?>"><?= e($locName) ?></option>
+                                        <?php endforeach; ?>
+                                    </optgroup>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">Specific Room/Details</label>
+                            <input type="text" name="location_details" class="form-control" 
+                                   placeholder="e.g. Room 302, near stairs..." maxlength="255">
+                        </div>
+                        <?php else: ?>
+                        <div class="col-md-12">
                             <label class="form-label fw-semibold">Location <span class="text-danger">*</span></label>
                             <input type="text" name="location" class="form-control" placeholder="e.g. Library, Canteen, Room 302" required maxlength="150">
                         </div>
+                        <?php endif; ?>
                         <div class="col-md-4">
                             <label class="form-label fw-semibold">Contact Number</label>
                             <input type="text" name="contact_number" class="form-control" placeholder="09XXXXXXXXX" maxlength="20">
@@ -210,6 +270,56 @@ if ($loggedIn) {
                         </div>
                         <div class="col-12" id="imagePreviewWrap" style="display:none;">
                             <img id="imagePreview" src="" alt="Preview" class="img-thumbnail" style="max-height:160px;">
+                        </div>
+                        
+                        <!-- Feature 2: Secret Identifier & Anti-Fraud (for found items only) -->
+                        <div class="col-12" id="verificationSection" style="display:none;">
+                            <div class="alert alert-info border-0 bg-info bg-opacity-10">
+                                <div class="d-flex gap-2">
+                                    <i class="bi bi-shield-check fs-5"></i>
+                                    <div>
+                                        <strong>Verification Question (Optional)</strong>
+                                        <p class="small text-muted mb-0">Add a security question to prevent false claims. Claimants must answer correctly to prove ownership.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row g-2">
+                                <div class="col-md-6">
+                                    <label class="form-label small fw-semibold">Verification Question</label>
+                                    <input type="text" name="verification_question" class="form-control form-control-sm" 
+                                           placeholder="e.g. What is the lock screen wallpaper?">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label small fw-semibold">Expected Answer</label>
+                                    <input type="text" name="verification_answer" class="form-control form-control-sm" 
+                                           placeholder="e.g. Photo of a cat">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Feature 4: Office Custody (for found items only) -->
+                        <div class="col-12" id="custodySection" style="display:none;">
+                            <div class="alert alert-success border-0 bg-success bg-opacity-10">
+                                <div class="d-flex gap-2">
+                                    <i class="bi bi-building-check fs-5"></i>
+                                    <div>
+                                        <strong>Office Custody (Optional)</strong>
+                                        <p class="small text-muted mb-0">Indicate if you've surrendered this item to a campus office for safekeeping.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row g-2">
+                                <div class="col-md-6">
+                                    <label class="form-label small fw-semibold">Custody Office</label>
+                                    <select name="custody_office" class="form-select form-select-sm">
+                                        <option value="">Keeping item with me</option>
+                                        <option value="security_guardhouse">Main Security Guardhouse</option>
+                                        <option value="sas_office">Student Affairs & Services (SAS) Office</option>
+                                        <option value="ssg_office">Supreme Student Government (SSG) Office</option>
+                                        <option value="dean_office">Department Dean / Faculty Room</option>
+                                    </select>
+                                </div>
+                            </div>
                         </div>
                     </div>
 

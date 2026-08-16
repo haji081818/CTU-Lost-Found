@@ -102,3 +102,28 @@ window.addEventListener('load', function () {
     }
 });
 
+// ── Feature 2: Secret Identifier UI Toggle ─────
+// Show verification section only for found items
+const typeLost = document.getElementById('typeLost');
+const typeFound = document.getElementById('typeFound');
+const verificationSection = document.getElementById('verificationSection');
+const custodySection = document.getElementById('custodySection');
+
+if (typeLost && typeFound && verificationSection && custodySection) {
+    function toggleFoundItemSections() {
+        if (typeFound.checked) {
+            verificationSection.style.display = 'block';
+            custodySection.style.display = 'block';
+        } else {
+            verificationSection.style.display = 'none';
+            custodySection.style.display = 'none';
+        }
+    }
+    
+    typeLost.addEventListener('change', toggleFoundItemSections);
+    typeFound.addEventListener('change', toggleFoundItemSections);
+    
+    // Initial check
+    toggleFoundItemSections();
+}
+

@@ -4,6 +4,10 @@ require_once __DIR__ . '/config/db.php';
 require_once __DIR__ . '/includes/header.php';
 requireLogin();
 
+// Check if messaging is available
+$msgTableCheck = $conn->query("SHOW TABLES LIKE 'messages'");
+$messagingAvailable = $msgTableCheck && $msgTableCheck->num_rows > 0;
+
 // claims (I need to approve/reject)
 $mine = $conn->prepare("
     SELECT c.*, p.title AS post_title, p.id AS post_id, u.name AS claimant_name
@@ -29,6 +33,22 @@ $sent = $conn->prepare("
 $sent->bind_param('i', $_SESSION['user_id']);
 $sent->execute();
 $sentClaims = $sent->get_result()->fetch_all(MYSQLI_ASSOC);
+
+// Get unread message counts for claims
+$claimMessageCounts = [];
+if ($messagingAvailable) {
+    foreach (array_merge($receivedClaims, $sentClaims) as $claim) {
+        $msgCountStmt = $conn->prepare("
+            SELECT COUNT(*) as count 
+            FROM messages 
+            WHERE claim_id = ? AND is_read = 0 AND receiver_id = ?
+        ");
+        $msgCountStmt->bind_param('ii', $claim['id'], $_SESSION['user_id']);
+        $msgCountStmt->execute();
+        $countResult = $msgCountStmt->get_result()->fetch_assoc();
+        $claimMessageCounts[$claim['id']] = $countResult['count'];
+    }
+}
 ?>
 
 <div class="container-xl py-4">
@@ -62,7 +82,16 @@ $sentClaims = $sent->get_result()->fetch_all(MYSQLI_ASSOC);
                                 <?= e($c['post_title']) ?>
                             </a>
                         </div>
-                        <span class="claim-status-pill <?= e($c['status']) ?>"><?= ucfirst($c['status']) ?></span>
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="claim-status-pill <?= e($c['status']) ?>"><?= ucfirst($c['status']) ?></span>
+                            <?php if ($messagingAvailable && ($c['status'] === 'approved' || $c['status'] === 'pending')): ?>
+                                <?php if (isset($claimMessageCounts[$c['id']]) && $claimMessageCounts[$c['id']] > 0): ?>
+                                <span class="badge bg-primary rounded-pill" style="font-size:.65rem">
+                                    <i class="bi bi-chat-dots me-1"></i><?= $claimMessageCounts[$c['id']] ?> new
+                                </span>
+                                <?php endif; ?>
+                            <?php endif; ?>
+                        </div>
                     </div>
                     <p class="text-muted small mb-2"><?= e($c['description']) ?></p>
                     <div class="text-muted" style="font-size:.7rem"><?= timeAgo($c['created_at']) ?></div>
@@ -109,7 +138,16 @@ $sentClaims = $sent->get_result()->fetch_all(MYSQLI_ASSOC);
                         <a href="item.php?id=<?= $c['post_id'] ?>" class="small fw-semibold">
                             <?= e($c['post_title']) ?>
                         </a>
-                        <span class="claim-status-pill <?= e($c['status']) ?>"><?= ucfirst($c['status']) ?></span>
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="claim-status-pill <?= e($c['status']) ?>"><?= ucfirst($c['status']) ?></span>
+                            <?php if ($messagingAvailable && ($c['status'] === 'approved' || $c['status'] === 'pending')): ?>
+                                <?php if (isset($claimMessageCounts[$c['id']]) && $claimMessageCounts[$c['id']] > 0): ?>
+                                <span class="badge bg-primary rounded-pill" style="font-size:.65rem">
+                                    <i class="bi bi-chat-dots me-1"></i><?= $claimMessageCounts[$c['id']] ?> new
+                                </span>
+                                <?php endif; ?>
+                            <?php endif; ?>
+                        </div>
                     </div>
                     <p class="text-muted small mb-1"><?= e($c['description']) ?></p>
                     <div class="text-muted" style="font-size:.7rem">

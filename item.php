@@ -32,7 +32,40 @@ $claimsStmt->bind_param('i', $id);
 $claimsStmt->execute();
 $claims = $claimsStmt->get_result()->fetch_all(MYSQLI_ASSOC);
 
-// NAKIT AN / NAULI NABA SA USER?
+// Feature 6: Get messages for approved claims
+$claimMessages = [];
+$messagingAvailable = false;
+
+// Check if messages table exists
+$messagesTableCheck = $conn->query("SHOW TABLES LIKE 'messages'");
+$messagingAvailable = $messagesTableCheck && $messagesTableCheck->num_rows > 0;
+
+if ($messagingAvailable) {
+    require_once __DIR__ . '/includes/messaging.php';
+    
+    // Check if current user has a claim on this post
+    $userClaim = null;
+    if ($loggedIn && !$isOwner) {
+        foreach ($claims as $c) {
+            if ($c['claimant_id'] == $_SESSION['user_id']) { 
+                $userClaim = $c; 
+                break; 
+            }
+        }
+    }
+
+    if ($loggedIn && $isOwner) {
+        foreach ($claims as $claim) {
+            if ($claim['status'] === 'approved' || $claim['status'] === 'pending') {
+                $claimMessages[$claim['id']] = getClaimMessages($claim['id'], $_SESSION['user_id']);
+            }
+        }
+    } elseif ($loggedIn && $userClaim) {
+        if ($userClaim['status'] === 'approved' || $userClaim['status'] === 'pending') {
+            $claimMessages[$userClaim['id']] = getClaimMessages($userClaim['id'], $_SESSION['user_id']);
+        }
+    }
+}
 $userClaim = null;
 if ($loggedIn && !$isOwner) {
     foreach ($claims as $c) {
@@ -90,6 +123,15 @@ $similar = $simStmt->get_result()->fetch_all(MYSQLI_ASSOC);
                     </span>
                 </div>
                 <?php endif; ?>
+                
+                <!-- Feature 4: Office Custody Badge -->
+                <?php if (!empty($post['custody_office'])): ?>
+                <div class="mb-2">
+                    <span class="badge bg-success" style="border-radius:50px; padding:.35rem .8rem">
+                        <i class="bi bi-building-check me-1"></i>In Campus Custody
+                    </span>
+                </div>
+                <?php endif; ?>
 
                 <h1 class="detail-title"><?= e($post['title']) ?></h1>
 
@@ -120,6 +162,21 @@ $similar = $simStmt->get_result()->fetch_all(MYSQLI_ASSOC);
                     <span class="text-muted">No contact number provided</span>
                 </div>
                 <?php endif; ?>
+                
+                <?php if (!empty($post['custody_office'])): ?>
+                <div class="detail-meta-item bg-success bg-opacity-10 p-2 rounded">
+                    <i class="bi bi-building-check icon text-success"></i>
+                    <div>
+                        <strong class="text-success">In Campus Custody</strong>
+                        <div class="small text-muted">
+                            <?= e(ucwords(str_replace('_', ' ', $post['custody_office']))) ?>
+                            <?php if (!empty($post['custody_reference'])): ?>
+                                <br>Ref: <strong><?= e($post['custody_reference']) ?></strong>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                </div>
+                <?php endif; ?>
 
                 <hr>
                 <p class="text-muted" style="font-size:.9rem;line-height:1.7"><?= nl2br(e($post['description'])) ?></p>
@@ -147,19 +204,79 @@ $similar = $simStmt->get_result()->fetch_all(MYSQLI_ASSOC);
                     </form>
                 </div>
                 <?php endif; ?>
+                
+                <!-- Feature 7: Poster Generation -->
+                <hr>
+                <div class="d-flex gap-2 flex-wrap">
+                    <a href="<?= BASE_URL ?>generate_poster.php?id=<?= $post['id'] ?>&format=html" 
+                       class="btn btn-sm btn-outline-secondary" target="_blank">
+                        <i class="bi bi-file-earmark-text me-1"></i>View Poster
+                    </a>
+                    <a href="<?= BASE_URL ?>generate_poster.php?id=<?= $post['id'] ?>&format=pdf" 
+                       class="btn btn-sm btn-outline-secondary" target="_blank">
+                        <i class="bi bi-file-earmark-pdf me-1"></i>Download PDF
+                    </a>
+                </div>
 
-                <!-- Claim button (non-owner, found item, active) -->
-                <?php if ($loggedIn && !$isOwner && $post['type']==='found' && $post['status']==='active'): ?>
+                <!-- Claim button (non-owner, found item) -->
+                <?php if ($loggedIn && !$isOwner && $post['type']==='found'): ?>
                 <hr>
                 <?php if ($userClaim): ?>
                     <div class="alert alert-info py-2 mb-0 small">
                         <i class="bi bi-info-circle me-1"></i>
                         You submitted a claim — status: <strong><?= e($userClaim['status']) ?></strong>
                     </div>
-                <?php else: ?>
+                    
+                    <!-- Feature 6: Messaging for claimants -->
+                    <?php if ($messagingAvailable && ($userClaim['status'] === 'approved' || $userClaim['status'] === 'pending')): ?>
+                    <div class="mt-3 pt-3 border-top">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <strong class="small"><i class="bi bi-chat-dots me-1"></i>Messages with Owner</strong>
+                            <button class="btn btn-sm btn-outline-primary" onclick="toggleMessaging(<?= $userClaim['id'] ?>)">
+                                <i class="bi bi-chat"></i> <?= isset($claimMessages[$userClaim['id']]) && !empty($claimMessages[$userClaim['id']]) ? 'View Chat' : 'Start Chat' ?>
+                            </button>
+                        </div>
+                        <div id="messaging-<?= $userClaim['id'] ?>" class="messaging-container" style="display:none;">
+                            <div class="message-thread">
+                                <?php if (isset($claimMessages[$userClaim['id']]) && !empty($claimMessages[$userClaim['id']])): ?>
+                                    <?php foreach ($claimMessages[$userClaim['id']] as $msg): ?>
+                                    <div class="message <?= $msg['sender_id'] == $_SESSION['user_id'] ? 'message-sent' : 'message-received' ?>">
+                                        <div class="message-header">
+                                            <strong><?= e($msg['sender_name']) ?></strong>
+                                            <span class="message-time"><?= timeAgo($msg['created_at']) ?></span>
+                                        </div>
+                                        <div class="message-content"><?= e($msg['message']) ?></div>
+                                    </div>
+                                    <?php endforeach; ?>
+                                <?php else: ?>
+                                    <div class="text-center text-muted small py-3">
+                                        <i class="bi bi-chat-dots display-4 mb-2"></i>
+                                        <p>No messages yet. Start the conversation!</p>
+                                    </div>
+                                <?php endif; ?>
+                            </div>
+                            <form class="message-form" onsubmit="sendMessage(event, <?= $userClaim['id'] ?>)">
+                                <?= csrfField() ?>
+                                <input type="hidden" name="claim_id" value="<?= $userClaim['id'] ?>">
+                                <div class="input-group">
+                                    <input type="text" name="message" class="form-control" placeholder="Type your message..." required>
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="bi bi-send"></i>
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                    <?php endif; ?>
+                <?php elseif ($post['status']==='active'): ?>
                     <button class="btn btn-primary w-100" data-bs-toggle="modal" data-bs-target="#claimModal">
                         <i class="bi bi-hand-index me-2"></i>Claim This Item
                     </button>
+                <?php else: ?>
+                    <div class="alert alert-secondary py-2 mb-0 small">
+                        <i class="bi bi-info-circle me-1"></i>
+                        This item is no longer available for claims.
+                    </div>
                 <?php endif; ?>
                 <?php elseif (!$loggedIn && $post['type']==='found' && $post['status']==='active'): ?>
                 <hr>
@@ -183,6 +300,23 @@ $similar = $simStmt->get_result()->fetch_all(MYSQLI_ASSOC);
                     <span class="claim-status-pill <?= e($claim['status']) ?>"><?= ucfirst($claim['status']) ?></span>
                 </div>
                 <p class="text-muted small mb-2"><?= e($claim['description']) ?></p>
+                
+                <?php if (!empty($claim['verification_answer'])): ?>
+                <div class="bg-light p-2 rounded mb-2 small">
+                    <strong class="text-primary">Verification Answer:</strong> 
+                    <span class="text-muted"><?= e($claim['verification_answer']) ?></span>
+                </div>
+                <?php endif; ?>
+                
+                <?php if (!empty($claim['proof_image'])): ?>
+                <div class="mb-2">
+                    <strong class="small text-primary">Proof Image:</strong>
+                    <a href="<?= UPLOAD_URL . e($claim['proof_image']) ?>" target="_blank" class="small">
+                        <i class="bi bi-image"></i> View Proof
+                    </a>
+                </div>
+                <?php endif; ?>
+                
                 <?php if ($claim['status'] === 'pending' && $post['status'] === 'active'): ?>
                 <div class="d-flex gap-2">
                     <form action="actions/claim_action.php" method="post" class="d-inline">
@@ -201,6 +335,48 @@ $similar = $simStmt->get_result()->fetch_all(MYSQLI_ASSOC);
                             <i class="bi bi-x me-1"></i>Reject
                         </button>
                     </form>
+                </div>
+                <?php endif; ?>
+                
+                <!-- Feature 6: Messaging for approved/pending claims -->
+                <?php if ($messagingAvailable && ($claim['status'] === 'approved' || $claim['status'] === 'pending')): ?>
+                <div class="mt-3 pt-3 border-top">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <strong class="small"><i class="bi bi-chat-dots me-1"></i>Messages</strong>
+                        <button class="btn btn-sm btn-outline-primary" onclick="toggleMessaging(<?= $claim['id'] ?>)">
+                            <i class="bi bi-chat"></i> <?= isset($claimMessages[$claim['id']]) && !empty($claimMessages[$claim['id']]) ? 'View Chat' : 'Start Chat' ?>
+                        </button>
+                    </div>
+                    <div id="messaging-<?= $claim['id'] ?>" class="messaging-container" style="display:none;">
+                        <div class="message-thread">
+                            <?php if (isset($claimMessages[$claim['id']]) && !empty($claimMessages[$claim['id']])): ?>
+                                <?php foreach ($claimMessages[$claim['id']] as $msg): ?>
+                                <div class="message <?= $msg['sender_id'] == $_SESSION['user_id'] ? 'message-sent' : 'message-received' ?>">
+                                    <div class="message-header">
+                                        <strong><?= e($msg['sender_name']) ?></strong>
+                                        <span class="message-time"><?= timeAgo($msg['created_at']) ?></span>
+                                    </div>
+                                    <div class="message-content"><?= e($msg['message']) ?></div>
+                                </div>
+                                <?php endforeach; ?>
+                            <?php else: ?>
+                                <div class="text-center text-muted small py-3">
+                                    <i class="bi bi-chat-dots display-4 mb-2"></i>
+                                    <p>No messages yet. Start the conversation!</p>
+                                </div>
+                            <?php endif; ?>
+                        </div>
+                        <form class="message-form" onsubmit="sendMessage(event, <?= $claim['id'] ?>)">
+                            <?= csrfField() ?>
+                            <input type="hidden" name="claim_id" value="<?= $claim['id'] ?>">
+                            <div class="input-group">
+                                <input type="text" name="message" class="form-control" placeholder="Type your message..." required>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="bi bi-send"></i>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
                 <?php endif; ?>
             </div>
@@ -242,6 +418,44 @@ $similar = $simStmt->get_result()->fetch_all(MYSQLI_ASSOC);
     <?php endif; ?>
 </div>
 
+<script>
+// Feature 6: Messaging functionality
+function toggleMessaging(claimId) {
+    const container = document.getElementById('messaging-' + claimId);
+    if (container.style.display === 'none') {
+        container.style.display = 'block';
+        // Scroll to bottom of messages
+        const thread = container.querySelector('.message-thread');
+        thread.scrollTop = thread.scrollHeight;
+    } else {
+        container.style.display = 'none';
+    }
+}
+
+function sendMessage(event, claimId) {
+    event.preventDefault();
+    const form = event.target;
+    const formData = new FormData(form);
+    
+    fetch('actions/send_message.php', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Reload the page to show the new message
+            location.reload();
+        } else {
+            alert('Error: ' + data.message);
+        }
+    })
+    .catch(error => {
+        alert('Error sending message: ' + error);
+    });
+}
+</script>
+
 <!-- Claim Modal -->
 <?php if ($loggedIn && !$isOwner && $post['type']==='found' && $post['status']==='active' && !$userClaim): ?>
 <div class="modal fade" id="claimModal" tabindex="-1" aria-hidden="true">
@@ -257,7 +471,13 @@ $similar = $simStmt->get_result()->fetch_all(MYSQLI_ASSOC);
                 <p class="text-muted small mb-3">
                     Describe the item to prove ownership. The poster will review your claim.
                 </p>
-                <form action="actions/submit_claim.php" method="post">
+                <?php if (!empty($post['verification_question'])): ?>
+                <div class="alert alert-warning py-2 mb-3 small">
+                    <i class="bi bi-shield-fill-check me-1"></i>
+                    <strong>Verification Required:</strong> <?= e($post['verification_question']) ?>
+                </div>
+                <?php endif; ?>
+                <form action="actions/submit_claim.php" method="post" enctype="multipart/form-data">
                     <?= csrfField() ?>
                     <input type="hidden" name="post_id" value="<?= $post['id'] ?>">
                     <div class="mb-3">
@@ -265,6 +485,18 @@ $similar = $simStmt->get_result()->fetch_all(MYSQLI_ASSOC);
                         <textarea name="description" class="form-control" rows="4"
                                   placeholder="e.g. My bag has a white patch on the front pocket, inside has my name written…"
                                   required></textarea>
+                    </div>
+                    <?php if (!empty($post['verification_question'])): ?>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Verification Answer <span class="text-danger">*</span></label>
+                        <input type="text" name="verification_answer" class="form-control" 
+                               placeholder="Answer the verification question..." required>
+                    </div>
+                    <?php endif; ?>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Proof Image (Optional)</label>
+                        <input type="file" name="proof_image" class="form-control" accept="image/*">
+                        <div class="form-text small">Upload purchase receipt, old photo, or other proof of ownership</div>
                     </div>
                     <div class="d-flex justify-content-end gap-2">
                         <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
