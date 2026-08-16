@@ -284,6 +284,20 @@ function generatePosterHTML($postId) {
                     <div class="detail-value"><?= e($post['poster_name']) ?></div>
                 </div>
                 
+                <?php if (!empty($post['contact_number'])): ?>
+                <div class="detail-row">
+                    <div class="detail-label">Contact:</div>
+                    <div class="detail-value"><?= e($post['contact_number']) ?></div>
+                </div>
+                <?php endif; ?>
+                
+                <?php if (!empty($post['verification_question'])): ?>
+                <div class="detail-row">
+                    <div class="detail-label">Security:</div>
+                    <div class="detail-value">Verification required</div>
+                </div>
+                <?php endif; ?>
+                
                 <div class="description">
                     <strong>Description:</strong><br>
                     <?= nl2br(e($post['description'])) ?>
@@ -293,7 +307,11 @@ function generatePosterHTML($postId) {
             <div class="qr-section">
                 <img src="<?= $qrCodeUrl ?>" alt="QR Code" class="qr-code">
                 <div class="qr-instruction">
-                    Scan this QR code to view details and submit a claim
+                    <?php if ($post['type'] === 'lost'): ?>
+                        Scan this QR code to report a sighting or help find this item
+                    <?php else: ?>
+                        Scan this QR code to view details and submit a claim
+                    <?php endif; ?>
                 </div>
             </div>
         </div>

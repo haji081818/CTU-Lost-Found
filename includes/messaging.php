@@ -245,3 +245,177 @@ function createMessageNotification($receiverId, $claimId, $senderId) {
     $notifStmt->bind_param('iis', $receiverId, $claimId, $message);
     return $notifStmt->execute();
 }
+
+/**
+ * Send a message in a sighting thread
+ * @param int $sightingId The sighting ID
+ * @param int $senderId The sender user ID
+ * @param int $receiverId The receiver user ID
+ * @param string $message The message content
+ * @return bool Success status
+ */
+function sendSightingMessage($sightingId, $senderId, $receiverId, $message) {
+    global $conn;
+    
+    if (empty($message) || trim($message) === '') {
+        return false;
+    }
+    
+    // Check if sighting_messages table exists
+    $tableCheck = $conn->query("SHOW TABLES LIKE 'sighting_messages'");
+    if (!$tableCheck || $tableCheck->num_rows == 0) {
+        return false; // Sighting messaging not available
+    }
+    
+    $stmt = $conn->prepare("
+        INSERT INTO sighting_messages (sighting_id, sender_id, receiver_id, message)
+        VALUES (?, ?, ?, ?)
+    ");
+    
+    $stmt->bind_param('iiis', $sightingId, $senderId, $receiverId, $message);
+    return $stmt->execute();
+}
+
+/**
+ * Get messages for a sighting thread
+ * @param int $sightingId The sighting ID
+ * @param int $userId The current user ID (for read status)
+ * @return array Array of messages
+ */
+function getSightingMessages($sightingId, $userId) {
+    global $conn;
+    
+    // Check if sighting_messages table exists
+    $tableCheck = $conn->query("SHOW TABLES LIKE 'sighting_messages'");
+    if (!$tableCheck || $tableCheck->num_rows == 0) {
+        return []; // Sighting messaging not available
+    }
+    
+    // Mark messages as read for the current user
+    $markReadStmt = $conn->prepare("
+        UPDATE sighting_messages 
+        SET is_read = 1 
+        WHERE sighting_id = ? AND receiver_id = ? AND is_read = 0
+    ");
+    $markReadStmt->bind_param('ii', $sightingId, $userId);
+    $markReadStmt->execute();
+    
+    // Get messages
+    $stmt = $conn->prepare("
+        SELECT m.*, 
+               u_sender.name as sender_name,
+               u_sender.avatar as sender_avatar,
+               u_receiver.name as receiver_name
+        FROM sighting_messages m
+        JOIN users u_sender ON m.sender_id = u_sender.id
+        JOIN users u_receiver ON m.receiver_id = u_receiver.id
+        WHERE m.sighting_id = ?
+        ORDER BY m.created_at ASC
+    ");
+    
+    $stmt->bind_param('i', $sightingId);
+    $stmt->execute();
+    
+    return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+}
+
+/**
+ * Check if user can participate in a sighting thread
+ * @param int $sightingId The sighting ID
+ * @param int $userId The user ID
+ * @return bool Permission status
+ */
+function canAccessSightingThread($sightingId, $userId) {
+    global $conn;
+    
+    $stmt = $conn->prepare("
+        SELECT s.reporter_id, p.user_id as post_owner_id
+        FROM sightings s
+        JOIN posts p ON s.post_id = p.id
+        WHERE s.id = ?
+    ");
+    
+    $stmt->bind_param('i', $sightingId);
+    $stmt->execute();
+    $sighting = $stmt->get_result()->fetch_assoc();
+    
+    if (!$sighting) {
+        return false;
+    }
+    
+    // User can access if they are the reporter or the post owner
+    return ($sighting['reporter_id'] == $userId || $sighting['post_owner_id'] == $userId);
+}
+
+/**
+ * Get sighting thread participants
+ * @param int $sightingId The sighting ID
+ * @return array Array of participant user IDs
+ */
+function getSightingParticipants($sightingId) {
+    global $conn;
+    
+    $stmt = $conn->prepare("
+        SELECT s.reporter_id, p.user_id as post_owner_id
+        FROM sightings s
+        JOIN posts p ON s.post_id = p.id
+        WHERE s.id = ?
+    ");
+    
+    $stmt->bind_param('i', $sightingId);
+    $stmt->execute();
+    $sighting = $stmt->get_result()->fetch_assoc();
+    
+    return [
+        'reporter_id' => $sighting['reporter_id'],
+        'post_owner_id' => $sighting['post_owner_id']
+    ];
+}
+
+/**
+ * Create a notification for a new sighting message
+ * @param int $receiverId The user ID to notify
+ * @param int $sightingId The sighting ID
+ * @param int $senderId The sender user ID
+ * @return bool Success status
+ */
+function createSightingMessageNotification($receiverId, $sightingId, $senderId) {
+    global $conn;
+    
+    // Check if notifications table exists
+    $tableCheck = $conn->query("SHOW TABLES LIKE 'notifications'");
+    if (!$tableCheck || $tableCheck->num_rows == 0) {
+        return false; // Notifications not available
+    }
+    
+    // Get sender name
+    $senderStmt = $conn->prepare("SELECT name FROM users WHERE id = ?");
+    $senderStmt->bind_param('i', $senderId);
+    $senderStmt->execute();
+    $sender = $senderStmt->get_result()->fetch_assoc();
+    $senderName = $sender ? $sender['name'] : 'Someone';
+    
+    // Get post details
+    $sightingStmt = $conn->prepare("
+        SELECT p.title, p.type 
+        FROM sightings s 
+        JOIN posts p ON s.post_id = p.id 
+        WHERE s.id = ?
+    ");
+    $sightingStmt->bind_param('i', $sightingId);
+    $sightingStmt->execute();
+    $sightingData = $sightingStmt->get_result()->fetch_assoc();
+    
+    $itemTitle = $sightingData ? $sightingData['title'] : 'an item';
+    $itemType = $sightingData ? ucfirst($sightingData['type']) : 'Item';
+    
+    $message = "New message from {$senderName} regarding your sighting on the {$itemType}: {$itemTitle}";
+    
+    $notifStmt = $conn->prepare("
+        INSERT INTO notifications (user_id, type, related_id, message, is_read)
+        VALUES (?, 'system', ?, ?, 0)
+    ");
+    
+    $notifStmt->bind_param('iis', $receiverId, $sightingId, $message);
+    return $notifStmt->execute();
+}
