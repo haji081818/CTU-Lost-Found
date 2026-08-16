@@ -81,6 +81,28 @@ $flash = getFlash();
                             <span class="d-lg-none ms-2">Claims</span>
                         </a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link nav-icon-btn <?= $currentPage === 'notifications' ? 'active' : '' ?>" href="<?= BASE_URL ?>notifications.php" title="Notifications">
+                            <i class="bi bi-chat-dots"></i>
+                            <?php
+                            // Get unread notification count
+                            $notifCount = 0;
+                            if ($loggedIn) {
+                                $notifCheck = $conn->query("SHOW TABLES LIKE 'notifications'");
+                                if ($notifCheck && $notifCheck->num_rows > 0) {
+                                    $notifStmt = $conn->prepare("SELECT COUNT(*) as count FROM notifications WHERE user_id = ? AND is_read = 0");
+                                    $notifStmt->bind_param('i', $_SESSION['user_id']);
+                                    $notifStmt->execute();
+                                    $notifResult = $notifStmt->get_result()->fetch_assoc();
+                                    $notifCount = $notifResult['count'];
+                                }
+                            }
+                            if ($notifCount > 0): ?>
+                                <span class="notification-badge"><?= $notifCount ?></span>
+                            <?php endif; ?>
+                            <span class="d-lg-none ms-2">Notifications</span>
+                        </a>
+                    </li>
                     <li class="nav-item ms-lg-2">
                         <button class="btn btn-post" data-bs-toggle="modal" data-bs-target="#postModal">
                             <i class="bi bi-plus-lg"></i> Post Item

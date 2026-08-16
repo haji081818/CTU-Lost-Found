@@ -37,6 +37,9 @@ $receiverId = ($participants['claimant_id'] == $_SESSION['user_id'])
 
 // Send message
 if (sendMessage($claimId, $_SESSION['user_id'], $receiverId, $message)) {
+    // Create notification for the receiver
+    createMessageNotification($receiverId, $claimId, $_SESSION['user_id']);
+    
     echo json_encode(['success' => true, 'message' => 'Message sent successfully']);
 } else {
     echo json_encode(['success' => false, 'message' => 'Failed to send message']);

@@ -218,18 +218,65 @@ $similar = $simStmt->get_result()->fetch_all(MYSQLI_ASSOC);
                     </a>
                 </div>
 
-                <!-- Claim button (non-owner, found item, active) -->
-                <?php if ($loggedIn && !$isOwner && $post['type']==='found' && $post['status']==='active'): ?>
+                <!-- Claim button (non-owner, found item) -->
+                <?php if ($loggedIn && !$isOwner && $post['type']==='found'): ?>
                 <hr>
                 <?php if ($userClaim): ?>
                     <div class="alert alert-info py-2 mb-0 small">
                         <i class="bi bi-info-circle me-1"></i>
                         You submitted a claim — status: <strong><?= e($userClaim['status']) ?></strong>
                     </div>
-                <?php else: ?>
+                    
+                    <!-- Feature 6: Messaging for claimants -->
+                    <?php if ($messagingAvailable && ($userClaim['status'] === 'approved' || $userClaim['status'] === 'pending')): ?>
+                    <div class="mt-3 pt-3 border-top">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <strong class="small"><i class="bi bi-chat-dots me-1"></i>Messages with Owner</strong>
+                            <button class="btn btn-sm btn-outline-primary" onclick="toggleMessaging(<?= $userClaim['id'] ?>)">
+                                <i class="bi bi-chat"></i> <?= isset($claimMessages[$userClaim['id']]) && !empty($claimMessages[$userClaim['id']]) ? 'View Chat' : 'Start Chat' ?>
+                            </button>
+                        </div>
+                        <div id="messaging-<?= $userClaim['id'] ?>" class="messaging-container" style="display:none;">
+                            <div class="message-thread">
+                                <?php if (isset($claimMessages[$userClaim['id']]) && !empty($claimMessages[$userClaim['id']])): ?>
+                                    <?php foreach ($claimMessages[$userClaim['id']] as $msg): ?>
+                                    <div class="message <?= $msg['sender_id'] == $_SESSION['user_id'] ? 'message-sent' : 'message-received' ?>">
+                                        <div class="message-header">
+                                            <strong><?= e($msg['sender_name']) ?></strong>
+                                            <span class="message-time"><?= timeAgo($msg['created_at']) ?></span>
+                                        </div>
+                                        <div class="message-content"><?= e($msg['message']) ?></div>
+                                    </div>
+                                    <?php endforeach; ?>
+                                <?php else: ?>
+                                    <div class="text-center text-muted small py-3">
+                                        <i class="bi bi-chat-dots display-4 mb-2"></i>
+                                        <p>No messages yet. Start the conversation!</p>
+                                    </div>
+                                <?php endif; ?>
+                            </div>
+                            <form class="message-form" onsubmit="sendMessage(event, <?= $userClaim['id'] ?>)">
+                                <?= csrfField() ?>
+                                <input type="hidden" name="claim_id" value="<?= $userClaim['id'] ?>">
+                                <div class="input-group">
+                                    <input type="text" name="message" class="form-control" placeholder="Type your message..." required>
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="bi bi-send"></i>
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                    <?php endif; ?>
+                <?php elseif ($post['status']==='active'): ?>
                     <button class="btn btn-primary w-100" data-bs-toggle="modal" data-bs-target="#claimModal">
                         <i class="bi bi-hand-index me-2"></i>Claim This Item
                     </button>
+                <?php else: ?>
+                    <div class="alert alert-secondary py-2 mb-0 small">
+                        <i class="bi bi-info-circle me-1"></i>
+                        This item is no longer available for claims.
+                    </div>
                 <?php endif; ?>
                 <?php elseif (!$loggedIn && $post['type']==='found' && $post['status']==='active'): ?>
                 <hr>

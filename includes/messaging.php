@@ -197,3 +197,51 @@ function getThreadParticipants($claimId) {
         'poster_id' => $claim['poster_id']
     ];
 }
+
+/**
+ * Create a notification for a new message
+ * @param int $receiverId The user ID to notify
+ * @param int $claimId The claim ID
+ * @param int $senderId The sender user ID
+ * @return bool Success status
+ */
+function createMessageNotification($receiverId, $claimId, $senderId) {
+    global $conn;
+    
+    // Check if notifications table exists
+    $tableCheck = $conn->query("SHOW TABLES LIKE 'notifications'");
+    if (!$tableCheck || $tableCheck->num_rows == 0) {
+        return false; // Notifications not available
+    }
+    
+    // Get sender name
+    $senderStmt = $conn->prepare("SELECT name FROM users WHERE id = ?");
+    $senderStmt->bind_param('i', $senderId);
+    $senderStmt->execute();
+    $sender = $senderStmt->get_result()->fetch_assoc();
+    $senderName = $sender ? $sender['name'] : 'Someone';
+    
+    // Get post details
+    $claimStmt = $conn->prepare("
+        SELECT p.title, p.type 
+        FROM claims c 
+        JOIN posts p ON c.post_id = p.id 
+        WHERE c.id = ?
+    ");
+    $claimStmt->bind_param('i', $claimId);
+    $claimStmt->execute();
+    $claimData = $claimStmt->get_result()->fetch_assoc();
+    
+    $itemTitle = $claimData ? $claimData['title'] : 'an item';
+    $itemType = $claimData ? ucfirst($claimData['type']) : 'Item';
+    
+    $message = "New message from {$senderName} regarding your claim on the {$itemType}: {$itemTitle}";
+    
+    $notifStmt = $conn->prepare("
+        INSERT INTO notifications (user_id, type, related_id, message, is_read)
+        VALUES (?, 'message', ?, ?, 0)
+    ");
+    
+    $notifStmt->bind_param('iis', $receiverId, $claimId, $message);
+    return $notifStmt->execute();
+}

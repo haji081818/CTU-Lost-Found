@@ -20,6 +20,23 @@ $myPosts = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 // Get smart matches for this user
 $userMatches = getUserMatches($_SESSION['user_id']);
 
+// Get unread message count
+$unreadMessageCount = 0;
+$msgTableCheck = $conn->query("SHOW TABLES LIKE 'messages'");
+if ($msgTableCheck && $msgTableCheck->num_rows > 0) {
+    $msgStmt = $conn->prepare("
+        SELECT COUNT(*) as count 
+        FROM messages m
+        JOIN claims c ON m.claim_id = c.id
+        JOIN posts p ON c.post_id = p.id
+        WHERE p.user_id = ? AND m.receiver_id = ? AND m.is_read = 0
+    ");
+    $msgStmt->bind_param('ii', $_SESSION['user_id'], $_SESSION['user_id']);
+    $msgStmt->execute();
+    $msgResult = $msgStmt->get_result()->fetch_assoc();
+    $unreadMessageCount = $msgResult['count'];
+}
+
 $catIcons = [
     'Electronics'=>'bi-phone','Bags & Accessories'=>'bi-bag','Books & Documents'=>'bi-book',
     'Clothing'=>'bi-gender-ambiguous','Keys & Cards'=>'bi-key','Jewelry'=>'bi-gem',
@@ -32,9 +49,17 @@ $catIcons = [
             <h1 class="section-heading">My Posts</h1>
             <p class="text-muted small"><?= count($myPosts) ?> post<?= count($myPosts)!==1?'s':'' ?> total</p>
         </div>
-        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#postModal">
-            <i class="bi bi-plus-lg me-1"></i>New Post
-        </button>
+        <div class="d-flex gap-2">
+            <?php if ($unreadMessageCount > 0): ?>
+            <a href="<?= BASE_URL ?>notifications.php" class="btn btn-outline-primary">
+                <i class="bi bi-chat-dots me-1"></i>
+                <?= $unreadMessageCount ?> New Message<?= $unreadMessageCount > 1 ? 's' : '' ?>
+            </a>
+            <?php endif; ?>
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#postModal">
+                <i class="bi bi-plus-lg me-1"></i>New Post
+            </button>
+        </div>
     </div>
 
     <?php if (empty($myPosts)): ?>
