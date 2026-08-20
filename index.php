@@ -202,6 +202,9 @@ $catIcons = [
                            placeholder="Search items, location…"
                            value="<?= e($search) ?>"
                            autocomplete="off">
+                    <div id="searchSpinner" class="spinner-border spinner-border-sm text-primary me-2 search-spinner" role="status" style="display:none">
+                        <span class="visually-hidden">Searching...</span>
+                    </div>
                     <?php if ($search): ?>
                     <a href="?type=<?= e($typeFilter) ?>" class="search-clear">
                         <i class="bi bi-x-circle-fill"></i>

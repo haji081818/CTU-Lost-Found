@@ -966,6 +966,110 @@ a:hover { color: var(--primary-mid); }
     color: #fff !important;
 }
 
+/* ── Top Progress Bar Loader ─────────────────── */
+#topProgressBar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 0%;
+    height: 3.5px;
+    background: linear-gradient(90deg, #FFAB00, #FFD166, #4ADE80);
+    z-index: 9999;
+    transition: width 0.3s ease-out, opacity 0.3s ease-out;
+    opacity: 0;
+    box-shadow: 0 0 10px rgba(255, 171, 0, 0.7);
+    pointer-events: none;
+}
+#topProgressBar.loading {
+    opacity: 1;
+}
+
+/* ── Image Preview Loader & Card ──────────────── */
+.image-upload-zone {
+    border: 2px dashed var(--border);
+    border-radius: var(--radius-sm);
+    padding: 1rem;
+    background: var(--bg-page);
+    text-align: center;
+    transition: all 0.2s ease;
+    position: relative;
+    cursor: pointer;
+}
+.image-upload-zone:hover,
+.image-upload-zone.dragover {
+    border-color: var(--primary);
+    background: rgba(15, 45, 92, 0.04);
+}
+.image-preview-card {
+    background: #FFFFFF;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 0.65rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-top: 0.5rem;
+    box-shadow: var(--shadow-sm);
+    animation: fadeIn 0.25s ease-out;
+}
+.image-preview-thumb {
+    width: 58px;
+    height: 58px;
+    border-radius: 6px;
+    object-fit: cover;
+    background: #1A202C;
+    flex-shrink: 0;
+}
+.image-preview-meta {
+    flex: 1;
+    min-width: 0;
+}
+.image-preview-name {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.image-preview-size {
+    font-size: 0.72rem;
+    color: var(--text-light);
+}
+.image-loading-indicator {
+    padding: 0.6rem;
+    background: #FFFFFF;
+    border-radius: var(--radius-sm);
+    border: 1px dashed var(--primary);
+    color: var(--primary);
+    font-size: 0.82rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+    animation: pulse 1.5s infinite;
+}
+
+/* ── Live Search Spinner ──────────────────────── */
+.search-spinner {
+    display: none;
+    color: var(--primary);
+}
+.search-spinner.active {
+    display: inline-block;
+}
+
+/* ── Animation Keyframes ──────────────────────── */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
+}
+
 /* ── Utilities ──────────────────────────────── */
 .text-primary { color: var(--primary) !important; }
 .bg-primary-soft { background: rgba(15,45,92,.07) !important; }
