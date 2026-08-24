@@ -1,10 +1,12 @@
-/* Local fonts for offline functionality - fallback to system fonts */
+/* Local Google Fonts for offline functionality */
+
+/* Outfit Font Family - All Weights */
 @font-face {
   font-family: 'Outfit';
   font-style: normal;
   font-weight: 300;
   font-display: swap;
-  src: local('Arial'), local('Helvetica'), local('sans-serif');
+  src: url('fonts/google/outfit-300.woff2') format('woff2');
 }
 
 @font-face {
@@ -12,7 +14,7 @@
   font-style: normal;
   font-weight: 400;
   font-display: swap;
-  src: local('Arial'), local('Helvetica'), local('sans-serif');
+  src: url('fonts/google/outfit-400.woff2') format('woff2');
 }
 
 @font-face {
@@ -20,7 +22,7 @@
   font-style: normal;
   font-weight: 500;
   font-display: swap;
-  src: local('Arial'), local('Helvetica'), local('sans-serif');
+  src: url('fonts/google/outfit-500.woff2') format('woff2');
 }
 
 @font-face {
@@ -28,7 +30,7 @@
   font-style: normal;
   font-weight: 600;
   font-display: swap;
-  src: local('Arial'), local('Helvetica'), local('sans-serif');
+  src: url('fonts/google/outfit-600.woff2') format('woff2');
 }
 
 @font-face {
@@ -36,7 +38,7 @@
   font-style: normal;
   font-weight: 700;
   font-display: swap;
-  src: local('Arial'), local('Helvetica'), local('sans-serif');
+  src: url('fonts/google/outfit-700.woff2') format('woff2');
 }
 
 @font-face {
@@ -44,15 +46,16 @@
   font-style: normal;
   font-weight: 800;
   font-display: swap;
-  src: local('Arial'), local('Helvetica'), local('sans-serif');
+  src: url('fonts/google/outfit-800.woff2') format('woff2');
 }
 
+/* Nunito Font Family - Required Weights */
 @font-face {
   font-family: 'Nunito';
   font-style: normal;
   font-weight: 400;
   font-display: swap;
-  src: local('Arial'), local('Helvetica'), local('sans-serif');
+  src: url('fonts/google/nunito-400.woff2') format('woff2');
 }
 
 @font-face {
@@ -60,7 +63,7 @@
   font-style: normal;
   font-weight: 500;
   font-display: swap;
-  src: local('Arial'), local('Helvetica'), local('sans-serif');
+  src: url('fonts/google/nunito-500.woff2') format('woff2');
 }
 
 @font-face {
@@ -68,5 +71,5 @@
   font-style: normal;
   font-weight: 600;
   font-display: swap;
-  src: local('Arial'), local('Helvetica'), local('sans-serif');
+  src: url('fonts/google/nunito-600.woff2') format('woff2');
 }
