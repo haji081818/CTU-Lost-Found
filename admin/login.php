@@ -31,11 +31,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Admin Login — CTU Lost & Found</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700;800&family=Nunito:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="<?= BASE_URL ?>assets/vendor/bootstrap.min.css" rel="stylesheet">
+    <link href="<?= BASE_URL ?>assets/vendor/bootstrap-icons.min.css" rel="stylesheet">
+    <link href="<?= BASE_URL ?>assets/vendor/fonts.css" rel="stylesheet">
     <style>
         body{font-family:'Nunito',sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center;
             background:linear-gradient(140deg,rgba(10,31,68,.93) 0%,rgba(15,45,92,.89) 45%,rgba(26,74,138,.86) 100%),
@@ -85,7 +83,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <a href="<?= BASE_URL ?>">← Back to main site</a>
     </p>
 </div>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="<?= BASE_URL ?>assets/vendor/bootstrap.bundle.min.js"></script>
 <script>
 document.getElementById('togglePass').addEventListener('click', function() {
     const f = document.getElementById('adminPass');
