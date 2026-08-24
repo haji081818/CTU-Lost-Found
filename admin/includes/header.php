@@ -15,11 +15,9 @@ $currentPage = basename($_SERVER['PHP_SELF'], '.php');
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= $pageTitle ?? 'Admin — CTU Lost & Found' ?></title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Nunito:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="<?= BASE_URL ?>assets/vendor/bootstrap.min.css" rel="stylesheet">
+    <link href="<?= BASE_URL ?>assets/vendor/bootstrap-icons.min.css" rel="stylesheet">
+    <link href="<?= BASE_URL ?>assets/vendor/fonts.css" rel="stylesheet">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><rect width='16' height='16' rx='3' fill='%23FFAB00'/><path fill='%230F2D5C' d='M6.5 2a4.5 4.5 0 1 0 2.672 8.086l2.622 2.621a.75.75 0 1 0 1.06-1.06L10.233 9.026A4.5 4.5 0 0 0 6.5 2m0 1a3.5 3.5 0 1 1 0 7 3.5 3.5 0 0 1 0-7'/></svg>">
     <style>
         :root {

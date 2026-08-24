@@ -5,6 +5,7 @@
  */
 
 require_once __DIR__ . '/../config/db.php';
+require_once __DIR__ . '/lib/qrcode.php';
 
 /**
  * Generate QR code for an item URL
@@ -13,34 +14,14 @@ require_once __DIR__ . '/../config/db.php';
  * @return bool Success status
  */
 function generateQRCode($url, $outputPath) {
-    // Using a different QR code API that's more reliable
-    // Using qrserver.com API as Google Charts API is deprecated
-    $qrApiUrl = 'https://api.qrserver.com/v1/create-qr-code/';
-    $params = [
-        'size' => '200x200',
-        'data' => $url,
-        'margin' => '10',
-        'format' => 'png'
-    ];
-    
-    $qrUrl = $qrApiUrl . '?' . http_build_query($params);
-    
-    // Download the QR code image with proper error handling
-    $context = stream_context_create([
-        'http' => [
-            'timeout' => 10,
-            'user_agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-        ]
-    ]);
-    
-    $qrImage = @file_get_contents($qrUrl, false, $context);
-    if ($qrImage === false) {
-        // Fallback: create a simple placeholder QR code using base64
+    // Use local QR code generator for offline support
+    try {
+        $qrGenerator = new QRCodeGenerator($url, 200, 10);
+        return $qrGenerator->save($outputPath);
+    } catch (Exception $e) {
+        // Fallback: create a simple placeholder QR code
         return generatePlaceholderQR($outputPath);
     }
-    
-    // Save the QR code image
-    return file_put_contents($outputPath, $qrImage) !== false;
 }
 
 /**
