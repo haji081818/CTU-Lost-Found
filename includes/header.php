@@ -132,6 +132,10 @@ if ($loggedIn) {
                             <li><a class="dropdown-item" href="<?= BASE_URL ?>profile.php"><i class="bi bi-person-fill me-2"></i>My Profile</a></li>
                             <li><a class="dropdown-item" href="<?= BASE_URL ?>my-posts.php"><i class="bi bi-collection me-2"></i>My Posts</a></li>
                             <li><a class="dropdown-item" href="<?= BASE_URL ?>claims.php"><i class="bi bi-bell me-2"></i>Claims</a></li>
+                            <?php if (isAdmin()): ?>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item text-warning" href="<?= BASE_URL ?>admin/dashboard.php"><i class="bi bi-shield-check me-2"></i>Admin Panel</a></li>
+                            <?php endif; ?>
                             <li><hr class="dropdown-divider"></li>
                             <li><a class="dropdown-item text-danger" href="<?= BASE_URL ?>logout.php"><i class="bi bi-box-arrow-right me-2"></i>Logout</a></li>
                         </ul>

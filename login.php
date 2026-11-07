@@ -3,7 +3,9 @@ $pageTitle = 'Log In — CTU Lost & Found';
 require_once __DIR__ . '/config/db.php';
 require_once __DIR__ . '/includes/header.php';
 
-if (isLoggedIn()) redirect(BASE_URL);
+if (isLoggedIn()) {
+    redirect(isAdmin() ? BASE_URL . 'admin/dashboard.php' : BASE_URL);
+}
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // CSRF token validation
@@ -63,9 +65,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <p class="text-center mt-3 small text-muted">
             Don't have an account?
             <a href="<?= BASE_URL ?>register.php" class="fw-semibold">Register here</a>
-        </p>
-        <p class="text-center small text-muted">
-            <a href="<?= BASE_URL ?>admin/login.php" class="text-muted">Admin? Log in here</a>
         </p>
     </div>
 </div>

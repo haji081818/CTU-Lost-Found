@@ -1,10 +1,7 @@
 <?php
 require_once __DIR__ . '/../../config/db.php';
 
-// Admin guard
-if (!isLoggedIn() || empty($_SESSION['is_admin'])) {
-    redirect(BASE_URL . 'admin/login.php');
-}
+requireAdmin();
 
 $adminName   = $_SESSION['user_name'] ?? 'Admin';
 $currentPage = basename($_SERVER['PHP_SELF'], '.php');
