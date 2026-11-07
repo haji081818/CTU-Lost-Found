@@ -17,7 +17,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     redirect(BASE_URL . 'admin/posts.php');
 }
 
-if (!isLoggedIn() || empty($_SESSION['is_admin'])) redirect(BASE_URL . 'admin/login.php');
+requireAdmin();
 
 $id = (int)($_POST['id'] ?? 0);
 if (!$id) {

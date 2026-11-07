@@ -18,6 +18,7 @@ if (!$post) { setFlash('error','Item not found.'); redirect(BASE_URL); }
 
 $pageTitle = e($post['title']) . ' — CTU Lost & Found';
 $isOwner   = $loggedIn && $_SESSION['user_id'] == $post['user_id'];
+$isAdmin   = $loggedIn && isAdmin();
 $imgSrc    = $post['image'] ? UPLOAD_URL . e($post['image']) : null;
 
 // Claims for this post
@@ -147,6 +148,19 @@ if ($sightingAvailable && $post['type'] === 'lost') {
 ?>
 
 <div class="container-xl py-4">
+    <?php if ($isAdmin): ?>
+    <div class="alert alert-primary d-flex align-items-center gap-2 mb-3" style="background:#0F2D5C;border-color:#0F2D5C;color:white;">
+        <i class="bi bi-shield-check fs-5"></i>
+        <div class="flex-grow-1">
+            <strong class="small">Administrator View</strong>
+            <span class="small opacity-75 ms-2">You have full access to manage this item</span>
+        </div>
+        <a href="<?= BASE_URL ?>admin/posts.php" class="btn btn-sm btn-light">
+            <i class="bi bi-grid"></i> Admin Panel
+        </a>
+    </div>
+    <?php endif; ?>
+
     <a href="<?= BASE_URL ?>" class="d-inline-flex align-items-center gap-2 text-muted mb-3 small fw-semibold"
        style="text-decoration:none">
         <i class="bi bi-arrow-left"></i> Back to Feed
@@ -261,6 +275,25 @@ if ($sightingAvailable && $post['type'] === 'lost') {
                         <button type="submit" class="btn btn-sm btn-outline-danger"
                                 onclick="return confirm('Delete this post?')">
                             <i class="bi bi-trash me-1"></i>Delete
+                        </button>
+                    </form>
+                </div>
+                <?php endif; ?>
+
+                <!-- Admin actions -->
+                <?php if ($isAdmin && !$isOwner): ?>
+                <hr>
+                <div class="alert alert-warning py-2 mb-2 small">
+                    <i class="bi bi-shield-check me-1"></i>
+                    <strong>Admin Control:</strong> You can manage this post as an administrator.
+                </div>
+                <div class="d-flex gap-2 flex-wrap">
+                    <form action="admin/actions/delete_post.php" method="post" class="d-inline">
+                        <?= csrfField() ?>
+                        <input type="hidden" name="id" value="<?= $post['id'] ?>">
+                        <button type="submit" class="btn btn-sm btn-danger"
+                                onclick="return confirm('Delete this post as administrator? This action cannot be undone.')">
+                            <i class="bi bi-trash me-1"></i>Delete Post
                         </button>
                     </form>
                 </div>

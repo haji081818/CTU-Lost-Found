@@ -67,6 +67,45 @@ function requireLogin(): void {
     }
 }
 
+// Helper: check admin role from the database
+function isAdmin(): bool {
+    if (!isLoggedIn()) {
+        return false;
+    }
+
+    global $conn;
+    $userId = (int)$_SESSION['user_id'];
+    $stmt = $conn->prepare("SELECT is_admin FROM users WHERE id = ?");
+    if (!$stmt) {
+        return false;
+    }
+
+    $stmt->bind_param('i', $userId);
+    $stmt->execute();
+    $user = $stmt->get_result()->fetch_assoc();
+    $stmt->close();
+
+    $isAdmin = $user && (int)$user['is_admin'] === 1;
+    $_SESSION['is_admin'] = $isAdmin ? 1 : 0;
+
+    return $isAdmin;
+}
+
+// Helper: require admin access
+function requireAdmin(): void {
+    if (isAdmin()) {
+        return;
+    }
+
+    if (isLoggedIn()) {
+        setFlash('error', 'Administrator access required.');
+        redirect(BASE_URL);
+    }
+
+    setFlash('warning', 'Please log in with an administrator account.');
+    redirect(BASE_URL . 'login.php');
+}
+
 // Helper: sanitize output
 function e(string $str): string {
     return htmlspecialchars($str, ENT_QUOTES, 'UTF-8');
